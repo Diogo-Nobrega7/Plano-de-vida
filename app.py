@@ -42,14 +42,25 @@ from db import banco  # noqa: E402  (depois de configurar o DATABASE_URL)
 
 
 @st.cache_resource
-def preparar_banco(destino: str) -> bool:
+def preparar_banco(destino: str, versao: str = "") -> bool:
     """Cria as tabelas e carrega os dados iniciais — uma vez para cada banco.
     `destino` faz o cache valer por banco: se o DATABASE_URL mudar, roda de novo."""
     banco.inicializar()
     return True
 
 
-preparar_banco(os.environ.get("DATABASE_URL") or str(banco.CAMINHO_DB))
+def versao_do_esquema() -> str:
+    """Muda sempre que o esquema ou os dados iniciais mudam (ex.: um módulo novo),
+    para as tabelas novas serem criadas logo após uma atualização do código."""
+    import hashlib
+    from pathlib import Path
+
+    pasta = Path(__file__).parent / "db"
+    conteudo = b"".join((pasta / n).read_bytes() for n in sorted(["esquema.sql", "dados_iniciais.py", "dados_enem.py"]))
+    return hashlib.sha256(conteudo).hexdigest()[:12]
+
+
+preparar_banco(os.environ.get("DATABASE_URL") or str(banco.CAMINHO_DB), versao_do_esquema())
 
 if senha_certa and st.sidebar.button("Sair"):
     st.session_state["logado"] = False
