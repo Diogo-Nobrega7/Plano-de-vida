@@ -25,7 +25,16 @@ Roda no seu computador: nada vai para a internet, e os dados ficam num arquivo s
 | **Comparador de carreiras** | Notas de 1 a 5 em 7 critérios com pesos ajustáveis; começa com Medicina e 3 alternativas |
 | **Diário de decisões** | Data, decisão, premissas e data para revisar; avisa quando chega a hora da revisão |
 
-Próxima etapa: **Módulo 3 — ENEM** (matérias, sessões de estudo, simulados).
+## Módulo 3 — ENEM
+
+| Tela | Para que serve |
+|---|---|
+| **Painel do ENEM** | Contagem regressiva, progresso por área, simulados (gráfico de evolução e distância até a meta), sessões de estudo (horas por semana e por matéria) e metas de nota |
+| **Conteúdos (checklist)** | 111 conteúdos separados por área e matéria, com frequência (Alta/Média/Baixa) e status; dá para adicionar os seus |
+| **Videoaulas** | Links de aulas por matéria e conteúdo, com player, "já assisti" e anotações |
+| **Redação** | Temas (ENEM 2016-2026 + temas de treino), editor com pré-análise automática, correção pelas 5 competências da Cartilha 2026, prompt pronto para corrigir com o Claude, histórico e guia do que as notas 1000 têm em comum |
+
+Preparado para crescer: cronograma semanal, revisão espaçada (já guarda a data da última revisão de cada conteúdo) e banco de erros.
 
 ## Como instalar (uma vez só)
 
@@ -66,7 +75,7 @@ python -m pytest
 ```
 
 Testam juros compostos, inflação, meta de liberdade, INSS, IR 2026, IR dos investimentos, orçamento,
-comparador de carreiras, metas e o banco de dados.
+comparador de carreiras, metas, ENEM, pré-análise de redação e o banco de dados.
 
 ## Organização do código
 
@@ -79,6 +88,8 @@ core/               cálculos puros, sem tela — fáceis de testar
   investimentos.py  catálogo de investimentos e simulação com IR
   orcamento.py      estimativa de gastos por tópico
   carreira.py       pontuação de carreiras, datas e situação das metas
+  enem.py           progresso, médias e metas de nota do ENEM
+  redacao.py        competências da Cartilha 2026, pré-análise e prompt de correção
   servicos.py       liga o banco aos cálculos
 db/                 banco de dados (SQLite)
 tests/              testes automáticos
@@ -92,3 +103,5 @@ tests/              testes automáticos
 - IR 2026 — Lei 15.270/2025 e tabela da Receita Federal
 - Gastos das famílias — POF/IBGE 2017-2018
 - Renda dos médicos — Demografia Médica no Brasil 2025
+- Redação — A Redação do Enem 2026: Cartilha do Participante (Inep, set/2026)
+- Frequência dos conteúdos — levantamentos de cursinhos sobre as provas de 2016 a 2025

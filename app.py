@@ -28,7 +28,12 @@ menu = st.navigation(
             st.Page("telas/comparador.py", title="Comparador de carreiras", icon="⚖️"),
             st.Page("telas/decisoes.py", title="Diário de decisões", icon="📓"),
         ],
-        # Módulo 3 (ENEM) entra aqui na próxima etapa.
+        "Módulo 3 — ENEM": [
+            st.Page("telas/enem_painel.py", title="Painel do ENEM", icon="📊"),
+            st.Page("telas/enem_conteudos.py", title="Conteúdos (checklist)", icon="✅"),
+            st.Page("telas/enem_videos.py", title="Videoaulas", icon="🎬"),
+            st.Page("telas/enem_redacao.py", title="Redação", icon="✍️"),
+        ],
     }
 )
 menu.run()

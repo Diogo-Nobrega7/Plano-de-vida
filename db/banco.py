@@ -48,6 +48,8 @@ def inicializar() -> None:
                         (cur.lastrowid, *fase),
                     )
         _semear_modulo2(con)
+        from db import banco_enem  # importado aqui para evitar import circular
+        banco_enem.semear(con)
 
 
 def _vazia(con: sqlite3.Connection, tabela: str) -> bool:

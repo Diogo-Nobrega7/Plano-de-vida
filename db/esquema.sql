@@ -92,3 +92,66 @@ CREATE TABLE IF NOT EXISTS decisoes (
     revisar_em TEXT,
     resultado  TEXT                       -- preenchido na revisão
 );
+
+-- ===================== Módulo 3: ENEM =====================
+
+CREATE TABLE IF NOT EXISTS materias (
+    id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    area  TEXT NOT NULL,                  -- Linguagens, Humanas, Natureza, Matemática, Redação
+    nome  TEXT NOT NULL,
+    UNIQUE (area, nome)
+);
+
+-- Checklist de conteúdos. frequencia = o quanto costuma cair (Alta/Média/Baixa).
+CREATE TABLE IF NOT EXISTS conteudos (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    materia_id  INTEGER NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
+    nome        TEXT NOT NULL,
+    frequencia  TEXT NOT NULL DEFAULT 'Média',
+    status      TEXT NOT NULL DEFAULT 'não estudado'
+                CHECK (status IN ('não estudado', 'estudando', 'revisado', 'dominado')),
+    revisado_em TEXT                      -- base para a futura revisão espaçada
+);
+
+CREATE TABLE IF NOT EXISTS videoaulas (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    materia_id INTEGER NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
+    conteudo   TEXT,
+    titulo     TEXT NOT NULL,
+    url        TEXT NOT NULL,
+    canal      TEXT,
+    assistido  INTEGER NOT NULL DEFAULT 0,
+    notas      TEXT
+);
+
+CREATE TABLE IF NOT EXISTS sessoes_estudo (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    data        TEXT NOT NULL,
+    materia_id  INTEGER NOT NULL REFERENCES materias(id) ON DELETE CASCADE,
+    minutos     INTEGER NOT NULL CHECK (minutos > 0),
+    observacoes TEXT
+);
+
+CREATE TABLE IF NOT EXISTS simulados (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    data    TEXT NOT NULL,
+    nome    TEXT NOT NULL,
+    lc      REAL, ch REAL, cn REAL, mt REAL, redacao REAL
+);
+
+CREATE TABLE IF NOT EXISTS temas_redacao (
+    id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    tema   TEXT NOT NULL UNIQUE,
+    ano    INTEGER,
+    origem TEXT NOT NULL DEFAULT 'Treino'  -- 'ENEM' (prova oficial) ou 'Treino'
+);
+
+CREATE TABLE IF NOT EXISTS redacoes (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    data        TEXT NOT NULL,
+    tema        TEXT NOT NULL,
+    texto       TEXT NOT NULL,
+    c1 INTEGER, c2 INTEGER, c3 INTEGER, c4 INTEGER, c5 INTEGER,  -- 0 a 200 (de 40 em 40)
+    corretor    TEXT,                     -- quem corrigiu: eu, professor, IA...
+    comentarios TEXT
+);
