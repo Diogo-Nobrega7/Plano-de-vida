@@ -6,3 +6,4 @@ venv/
 # Seus dados pessoais ficam só no seu computador
 dados/
 *.db
+.streamlit/secrets.toml

@@ -3,14 +3,56 @@
 Este arquivo só monta o menu lateral. Cada tela fica em telas/.
 """
 
-import streamlit as st
+import hmac
+import os
 
-from db import banco
+import streamlit as st
 
 st.set_page_config(page_title="Plano de Vida", page_icon="🧭", layout="wide")
 
-# Cria as tabelas e carrega os dados iniciais (só na primeira vez).
-banco.inicializar()
+
+def segredo(nome: str) -> str | None:
+    """Lê um segredo do Streamlit Cloud (Settings → Secrets) ou de uma variável de ambiente."""
+    try:
+        if nome in st.secrets:
+            return str(st.secrets[nome])
+    except Exception:  # sem arquivo de segredos (rodando no computador)
+        pass
+    return os.environ.get(nome)
+
+
+# Versão online: o endereço do banco (Supabase) vem dos segredos.
+if segredo("DATABASE_URL"):
+    os.environ["DATABASE_URL"] = segredo("DATABASE_URL")
+
+# Login: só pede senha se APP_PASSWORD estiver configurada (na versão online).
+senha_certa = segredo("APP_PASSWORD")
+if senha_certa and not st.session_state.get("logado"):
+    st.title("🧭 Plano de Vida")
+    with st.form("login"):
+        senha = st.text_input("Senha", type="password")
+        if st.form_submit_button("Entrar", type="primary"):
+            if hmac.compare_digest(senha.encode(), senha_certa.encode()):
+                st.session_state["logado"] = True
+                st.rerun()
+            st.error("Senha incorreta.")
+    st.stop()
+
+from db import banco  # noqa: E402  (depois de configurar o DATABASE_URL)
+
+
+@st.cache_resource
+def preparar_banco() -> bool:
+    """Cria as tabelas e carrega os dados iniciais — uma vez por servidor."""
+    banco.inicializar()
+    return True
+
+
+preparar_banco()
+
+if senha_certa and st.sidebar.button("Sair"):
+    st.session_state["logado"] = False
+    st.rerun()
 
 menu = st.navigation(
     {

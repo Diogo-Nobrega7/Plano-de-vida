@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sqlite3
 
 import pandas as pd
 
@@ -13,12 +12,12 @@ AREAS = ["Linguagens", "Humanas", "Natureza", "Matemática", "Redação"]
 STATUS = ["não estudado", "estudando", "revisado", "dominado"]
 
 
-def semear(con: sqlite3.Connection) -> None:
+def semear(con: Conexao) -> None:
     """Dados iniciais (cada tabela só é preenchida se estiver vazia)."""
     if con.execute("SELECT COUNT(*) FROM materias").fetchone()[0] == 0:
         for area, materias in CONTEUDOS.items():
             for materia, conteudos in materias.items():
-                mid = con.execute("INSERT INTO materias (area, nome) VALUES (?, ?)", (area, materia)).lastrowid
+                mid = con.inserir("INSERT INTO materias (area, nome) VALUES (?, ?)", (area, materia))
                 con.executemany("INSERT INTO conteudos (materia_id, nome, frequencia) VALUES (?, ?, ?)",
                                 [(mid, n, f) for n, f in conteudos])
     if con.execute("SELECT COUNT(*) FROM temas_redacao").fetchone()[0] == 0:
@@ -27,14 +26,14 @@ def semear(con: sqlite3.Connection) -> None:
         con.executemany("INSERT INTO temas_redacao (tema, origem) VALUES (?, 'Treino')",
                         [(t,) for t in TEMAS_TREINO])
     for chave, valor in METAS_NOTA.items():
-        con.execute("INSERT OR IGNORE INTO config (chave, valor) VALUES (?, ?)", (chave, str(valor)))
+        con.execute("INSERT INTO config (chave, valor) VALUES (?, ?) ON CONFLICT (chave) DO NOTHING", (chave, str(valor)))
 
 
 # --- Matérias e conteúdos -----------------------------------------------------
 
 def listar_materias() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT * FROM materias ORDER BY id", con)
+        return con.df("SELECT * FROM materias ORDER BY id")
 
 
 def nome_materias() -> dict[int, str]:
@@ -47,8 +46,8 @@ def listar_conteudos(materia_id: int | None = None) -> pd.DataFrame:
            " FROM conteudos c JOIN materias m ON m.id = c.materia_id")
     with conectar() as con:
         if materia_id is None:
-            return pd.read_sql(sql + " ORDER BY m.id, c.id", con)
-        return pd.read_sql(sql + " WHERE c.materia_id = ? ORDER BY c.id", con, params=(materia_id,))
+            return con.df(sql + " ORDER BY m.id, c.id")
+        return con.df(sql + " WHERE c.materia_id = ? ORDER BY c.id", (materia_id,))
 
 
 def salvar_conteudos(materia_id: int, df: pd.DataFrame) -> None:
@@ -80,8 +79,8 @@ def salvar_conteudos(materia_id: int, df: pd.DataFrame) -> None:
 
 def listar_videos() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT v.*, m.area, m.nome AS materia FROM videoaulas v"
-                           " JOIN materias m ON m.id = v.materia_id ORDER BY m.id, v.id", con)
+        return con.df("SELECT v.*, m.area, m.nome AS materia FROM videoaulas v"
+                           " JOIN materias m ON m.id = v.materia_id ORDER BY m.id, v.id")
 
 
 def adicionar_video(materia_id: int, titulo: str, url: str, conteudo: str = "", canal: str = "") -> None:
@@ -110,8 +109,8 @@ def adicionar_sessao(data: str, materia_id: int, minutos: int, observacoes: str 
 
 def listar_sessoes() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT s.*, m.area, m.nome AS materia FROM sessoes_estudo s"
-                           " JOIN materias m ON m.id = s.materia_id ORDER BY s.data DESC, s.id DESC", con)
+        return con.df("SELECT s.*, m.area, m.nome AS materia FROM sessoes_estudo s"
+                           " JOIN materias m ON m.id = s.materia_id ORDER BY s.data DESC, s.id DESC")
 
 
 def apagar_sessoes(ids: list[int]) -> None:
@@ -128,7 +127,7 @@ def adicionar_simulado(data: str, nome: str, notas: dict[str, float | None]) -> 
 
 def listar_simulados() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT * FROM simulados ORDER BY data, id", con)
+        return con.df("SELECT * FROM simulados ORDER BY data, id")
 
 
 def apagar_simulado(simulado_id: int) -> None:
@@ -145,12 +144,12 @@ def metas_nota() -> dict[str, float]:
 
 def listar_temas() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT * FROM temas_redacao ORDER BY origem, ano DESC, id", con)
+        return con.df("SELECT * FROM temas_redacao ORDER BY origem, ano DESC, id")
 
 
 def adicionar_tema(tema: str) -> None:
     with conectar() as con:
-        con.execute("INSERT OR IGNORE INTO temas_redacao (tema, origem) VALUES (?, 'Treino')", (tema.strip(),))
+        con.execute("INSERT INTO temas_redacao (tema, origem) VALUES (?, 'Treino') ON CONFLICT (tema) DO NOTHING", (tema.strip(),))
 
 
 def salvar_redacao(data: str, tema: str, texto: str, notas: dict[str, int | None],
@@ -162,13 +161,13 @@ def salvar_redacao(data: str, tema: str, texto: str, notas: dict[str, int | None
             con.execute("UPDATE redacoes SET data=?, tema=?, texto=?, c1=?, c2=?, c3=?, c4=?, c5=?,"
                         " corretor=?, comentarios=? WHERE id=?", (*valores, redacao_id))
             return redacao_id
-        return con.execute("INSERT INTO redacoes (data, tema, texto, c1, c2, c3, c4, c5, corretor, comentarios)"
-                           " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", valores).lastrowid
+        return con.inserir("INSERT INTO redacoes (data, tema, texto, c1, c2, c3, c4, c5, corretor, comentarios)"
+                           " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", valores)
 
 
 def listar_redacoes() -> pd.DataFrame:
     with conectar() as con:
-        df = pd.read_sql("SELECT * FROM redacoes ORDER BY data, id", con)
+        df = con.df("SELECT * FROM redacoes ORDER BY data, id")
     df["total"] = df[["c1", "c2", "c3", "c4", "c5"]].sum(axis=1, min_count=5)
     return df
 

@@ -3,6 +3,9 @@
 Sistema pessoal do Davi para acompanhar **finanças, carreira e estudos para o ENEM**.
 Roda no seu computador: nada vai para a internet, e os dados ficam num arquivo seu.
 
+**Versão online:** veja [`docs/PUBLICAR.md`](docs/PUBLICAR.md) para colocar o app na internet (Streamlit Cloud + Supabase),
+com senha e acesso de qualquer navegador.
+
 > Material de estudo, não recomendação de investimento. Taxas e impostos mudam: revise todo ano.
 
 ## O que já tem (Módulo 1 — Finanças)
@@ -91,7 +94,7 @@ core/               cálculos puros, sem tela — fáceis de testar
   enem.py           progresso, médias e metas de nota do ENEM
   redacao.py        competências da Cartilha 2026, pré-análise e prompt de correção
   servicos.py       liga o banco aos cálculos
-db/                 banco de dados (SQLite)
+db/                 banco de dados (SQLite no computador, Postgres/Supabase online)
 tests/              testes automáticos
 ```
 

@@ -7,10 +7,12 @@ copiar esse arquivo (veja o README).
 from __future__ import annotations
 
 import os
-import sqlite3
 from pathlib import Path
 
 import pandas as pd
+
+from db.conexao import Conexao
+from db.conexao import conectar as _conectar
 
 from db.dados_iniciais import (CARREIRAS_INICIAIS, CENARIOS_INICIAIS, CONFIG_INICIAL, CRITERIOS_INICIAIS,
                                DECISOES_INICIAIS, METAS_INICIAIS, fases_do_cenario)
@@ -20,11 +22,8 @@ RAIZ = Path(__file__).resolve().parent.parent
 CAMINHO_DB = Path(os.environ.get("PLANO_DB", RAIZ / "dados" / "plano.db"))
 
 
-def conectar() -> sqlite3.Connection:
-    CAMINHO_DB.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(CAMINHO_DB)
-    con.execute("PRAGMA foreign_keys = ON")
-    return con
+def conectar() -> Conexao:
+    return _conectar(CAMINHO_DB)
 
 
 def inicializar() -> None:
@@ -33,11 +32,11 @@ def inicializar() -> None:
     with conectar() as con:
         con.executescript(esquema)
         for chave, valor in CONFIG_INICIAL.items():
-            con.execute("INSERT OR IGNORE INTO config (chave, valor) VALUES (?, ?)", (chave, valor))
+            con.execute("INSERT INTO config (chave, valor) VALUES (?, ?) ON CONFLICT (chave) DO NOTHING", (chave, valor))
         ja_tem = con.execute("SELECT COUNT(*) FROM cenarios").fetchone()[0]
         if not ja_tem:
             for nome, taxa, descricao in CENARIOS_INICIAIS:
-                cur = con.execute(
+                cenario_id = con.inserir(
                     "INSERT INTO cenarios (nome, taxa_real, descricao) VALUES (?, ?, ?)",
                     (nome, taxa, descricao),
                 )
@@ -45,18 +44,18 @@ def inicializar() -> None:
                     con.execute(
                         "INSERT INTO fases (cenario_id, nome, idade_inicio, idade_fim,"
                         " renda_min, renda_max, aporte_mensal) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                        (cur.lastrowid, *fase),
+                        (cenario_id, *fase),
                     )
         _semear_modulo2(con)
         from db import banco_enem  # importado aqui para evitar import circular
         banco_enem.semear(con)
 
 
-def _vazia(con: sqlite3.Connection, tabela: str) -> bool:
+def _vazia(con: Conexao, tabela: str) -> bool:
     return con.execute(f"SELECT COUNT(*) FROM {tabela}").fetchone()[0] == 0
 
 
-def _semear_modulo2(con: sqlite3.Connection) -> None:
+def _semear_modulo2(con: Conexao) -> None:
     """Dados iniciais do Módulo 2 (cada tabela só é preenchida se estiver vazia)."""
     if _vazia(con, "metas"):
         con.executemany("INSERT INTO metas (titulo, area, prazo, status) VALUES (?, ?, ?, ?)", METAS_INICIAIS)
@@ -65,7 +64,7 @@ def _semear_modulo2(con: sqlite3.Connection) -> None:
     if _vazia(con, "carreiras"):
         ids_crit = [r[0] for r in con.execute("SELECT id FROM criterios ORDER BY id")]
         for nome, (notas, obs) in CARREIRAS_INICIAIS.items():
-            cid = con.execute("INSERT INTO carreiras (nome, notas) VALUES (?, ?)", (nome, obs)).lastrowid
+            cid = con.inserir("INSERT INTO carreiras (nome, notas) VALUES (?, ?)", (nome, obs))
             con.executemany("INSERT INTO notas_carreira VALUES (?, ?, ?)",
                             [(cid, crit, n) for crit, n in zip(ids_crit, notas)])
     if _vazia(con, "decisoes"):
@@ -105,7 +104,7 @@ def adicionar_lancamento(mes: str, tipo: str, categoria: str, descricao: str, va
 
 def listar_lancamentos() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT * FROM lancamentos ORDER BY mes DESC, id DESC", con)
+        return con.df("SELECT * FROM lancamentos ORDER BY mes DESC, id DESC")
 
 
 def apagar_lancamentos(ids: list[int]) -> None:
@@ -125,7 +124,7 @@ def categorias_usadas() -> list[str]:
 
 def listar_investimentos() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT * FROM investimentos ORDER BY id", con)
+        return con.df("SELECT * FROM investimentos ORDER BY id")
 
 
 def salvar_investimentos(df: pd.DataFrame) -> None:
@@ -157,7 +156,7 @@ def patrimonio_total() -> float:
 
 def listar_cenarios() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT * FROM cenarios ORDER BY id", con)
+        return con.df("SELECT * FROM cenarios ORDER BY id")
 
 
 def atualizar_taxa_cenario(cenario_id: int, taxa_real: float) -> None:
@@ -167,11 +166,9 @@ def atualizar_taxa_cenario(cenario_id: int, taxa_real: float) -> None:
 
 def listar_fases(cenario_id: int) -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql(
+        return con.df(
             "SELECT nome, idade_inicio, idade_fim, renda_min, renda_max, aporte_mensal"
-            " FROM fases WHERE cenario_id = ? ORDER BY idade_inicio",
-            con,
-            params=(cenario_id,),
+            " FROM fases WHERE cenario_id = ? ORDER BY idade_inicio", (cenario_id,),
         )
 
 
@@ -201,7 +198,7 @@ def salvar_fases(cenario_id: int, df: pd.DataFrame) -> None:
 
 def listar_metas() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT * FROM metas ORDER BY status = 'concluída', prazo", con)
+        return con.df("SELECT * FROM metas ORDER BY status = 'concluída', prazo")
 
 
 def salvar_metas(df: pd.DataFrame) -> None:
@@ -229,7 +226,7 @@ def _data_texto(valor) -> str | None:
 
 def listar_criterios() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT * FROM criterios ORDER BY id", con)
+        return con.df("SELECT * FROM criterios ORDER BY id")
 
 
 def salvar_pesos(pesos: dict[str, float]) -> None:
@@ -240,10 +237,10 @@ def salvar_pesos(pesos: dict[str, float]) -> None:
 def tabela_notas() -> pd.DataFrame:
     """Uma linha por carreira, uma coluna por critério (nota 1-5) + observações."""
     with conectar() as con:
-        longo = pd.read_sql(
+        longo = con.df(
             "SELECT ca.nome AS carreira, cr.nome AS criterio, n.nota FROM notas_carreira n"
-            " JOIN carreiras ca ON ca.id = n.carreira_id JOIN criterios cr ON cr.id = n.criterio_id", con)
-        carreiras = pd.read_sql("SELECT nome AS carreira, notas AS observacoes FROM carreiras ORDER BY id", con)
+            " JOIN carreiras ca ON ca.id = n.carreira_id JOIN criterios cr ON cr.id = n.criterio_id")
+        carreiras = con.df("SELECT nome AS carreira, notas AS observacoes FROM carreiras ORDER BY id")
         criterios = listar_criterios()["nome"].tolist()
     largo = longo.pivot(index="carreira", columns="criterio", values="nota") if not longo.empty else pd.DataFrame()
     largo = largo.reindex(index=carreiras["carreira"], columns=criterios)
@@ -257,8 +254,8 @@ def salvar_notas(df: pd.DataFrame) -> None:
     with conectar() as con:
         con.execute("DELETE FROM carreiras")
         for _, l in df.dropna(subset=["carreira"]).iterrows():
-            cid = con.execute("INSERT INTO carreiras (nome, notas) VALUES (?, ?)",
-                              (l["carreira"], l.get("observacoes"))).lastrowid
+            cid = con.inserir("INSERT INTO carreiras (nome, notas) VALUES (?, ?)",
+                              (l["carreira"], l.get("observacoes")))
             for crit in criterios.itertuples():
                 nota = l.get(crit.nome)
                 nota = 3 if nota is None or pd.isna(nota) else min(5, max(1, float(nota)))
@@ -271,7 +268,7 @@ def salvar_notas(df: pd.DataFrame) -> None:
 
 def listar_decisoes() -> pd.DataFrame:
     with conectar() as con:
-        return pd.read_sql("SELECT * FROM decisoes ORDER BY data DESC, id DESC", con)
+        return con.df("SELECT * FROM decisoes ORDER BY data DESC, id DESC")
 
 
 def adicionar_decisao(data: str, decisao: str, premissas: str, revisar_em: str | None) -> None:
