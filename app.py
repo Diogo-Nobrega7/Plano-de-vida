@@ -42,13 +42,14 @@ from db import banco  # noqa: E402  (depois de configurar o DATABASE_URL)
 
 
 @st.cache_resource
-def preparar_banco() -> bool:
-    """Cria as tabelas e carrega os dados iniciais — uma vez por servidor."""
+def preparar_banco(destino: str) -> bool:
+    """Cria as tabelas e carrega os dados iniciais — uma vez para cada banco.
+    `destino` faz o cache valer por banco: se o DATABASE_URL mudar, roda de novo."""
     banco.inicializar()
     return True
 
 
-preparar_banco()
+preparar_banco(os.environ.get("DATABASE_URL") or str(banco.CAMINHO_DB))
 
 if senha_certa and st.sidebar.button("Sair"):
     st.session_state["logado"] = False
