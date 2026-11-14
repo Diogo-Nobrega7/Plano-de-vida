@@ -16,8 +16,16 @@ Roda no seu computador: nada vai para a internet, e os dados ficam num arquivo s
 | **Impostos no salário** | Salário bruto → líquido com INSS e IR de 2026 (isenção até R$ 5 mil) e "quanto preciso ganhar bruto?" |
 | **Orçamento familiar** | Estimativa de gastos por tópico (moradia, feira, transporte, saúde, lazer, viagens...) com base no IBGE, e a regra 50/30/20 |
 
-Próximas etapas: **Módulo 2 — Carreira** (linha do tempo, metas, comparador de carreiras, diário de decisões) e
-**Módulo 3 — ENEM** (matérias, sessões de estudo, simulados).
+## Módulo 2 — Vida e carreira
+
+| Tela | Para que serve |
+|---|---|
+| **Linha do tempo** | Fases da vida por idade e ano (gráfico), com renda e aporte de cada fase, por cenário |
+| **Metas** | Metas com área, prazo e status; mostra atrasadas e as que vencem em breve |
+| **Comparador de carreiras** | Notas de 1 a 5 em 7 critérios com pesos ajustáveis; começa com Medicina e 3 alternativas |
+| **Diário de decisões** | Data, decisão, premissas e data para revisar; avisa quando chega a hora da revisão |
+
+Próxima etapa: **Módulo 3 — ENEM** (matérias, sessões de estudo, simulados).
 
 ## Como instalar (uma vez só)
 
@@ -57,7 +65,8 @@ Tudo fica em **um arquivo só: `dados/plano.db`**.
 python -m pytest
 ```
 
-Testam juros compostos, inflação, meta de liberdade, INSS, IR 2026, IR dos investimentos e o orçamento.
+Testam juros compostos, inflação, meta de liberdade, INSS, IR 2026, IR dos investimentos, orçamento,
+comparador de carreiras, metas e o banco de dados.
 
 ## Organização do código
 
@@ -69,6 +78,7 @@ core/               cálculos puros, sem tela — fáceis de testar
   impostos.py       INSS e IR 2026, tabela regressiva
   investimentos.py  catálogo de investimentos e simulação com IR
   orcamento.py      estimativa de gastos por tópico
+  carreira.py       pontuação de carreiras, datas e situação das metas
   servicos.py       liga o banco aos cálculos
 db/                 banco de dados (SQLite)
 tests/              testes automáticos

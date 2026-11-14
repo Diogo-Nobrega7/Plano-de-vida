@@ -47,3 +47,48 @@ CREATE TABLE IF NOT EXISTS fases (
     renda_max     REAL NOT NULL DEFAULT 0,
     aporte_mensal REAL NOT NULL DEFAULT 0
 );
+
+-- ===================== Módulo 2: Carreira =====================
+
+-- Metas com prazo e status.
+CREATE TABLE IF NOT EXISTS metas (
+    id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT NOT NULL,
+    area   TEXT NOT NULL DEFAULT 'Pessoal',
+    prazo  TEXT,                          -- data AAAA-MM-DD
+    status TEXT NOT NULL DEFAULT 'não iniciada'
+           CHECK (status IN ('não iniciada', 'em andamento', 'concluída')),
+    notas  TEXT
+);
+
+-- Critérios do comparador de carreiras (nota 5 = melhor para você).
+CREATE TABLE IF NOT EXISTS criterios (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome      TEXT NOT NULL UNIQUE,
+    peso      REAL NOT NULL DEFAULT 1,
+    descricao TEXT
+);
+
+CREATE TABLE IF NOT EXISTS carreiras (
+    id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome  TEXT NOT NULL UNIQUE,
+    notas TEXT
+);
+
+-- Nota de cada carreira em cada critério (1 a 5).
+CREATE TABLE IF NOT EXISTS notas_carreira (
+    carreira_id INTEGER NOT NULL REFERENCES carreiras(id) ON DELETE CASCADE,
+    criterio_id INTEGER NOT NULL REFERENCES criterios(id) ON DELETE CASCADE,
+    nota        REAL NOT NULL CHECK (nota BETWEEN 1 AND 5),
+    PRIMARY KEY (carreira_id, criterio_id)
+);
+
+-- Diário de decisões: o que decidi, com base em quê, e quando revisar.
+CREATE TABLE IF NOT EXISTS decisoes (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    data       TEXT NOT NULL,
+    decisao    TEXT NOT NULL,
+    premissas  TEXT,
+    revisar_em TEXT,
+    resultado  TEXT                       -- preenchido na revisão
+);

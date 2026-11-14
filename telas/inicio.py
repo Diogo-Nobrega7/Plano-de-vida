@@ -3,6 +3,7 @@
 import pandas as pd
 import streamlit as st
 
+from core.carreira import situacao_meta
 from core.formato import brl, brl_curto
 from core.servicos import meta_liberdade, parametros, simular_cenarios
 from db import banco
@@ -30,7 +31,17 @@ for col, c in zip(colunas, cenarios.itertuples()):
     idade = f"{c.idade_meta:.0f} anos" if pd.notna(c.idade_meta) else "Não chega"
     col.metric(c.nome, idade, help="Idade em que o patrimônio chega à meta (simulação até os 70).")
 
-st.info(
-    "Próximos passos do plano: conversar com pelo menos 2 médicos, montar o plano de "
-    "estudos do 2º ano e lançar aqui suas receitas, despesas e investimentos."
-)
+st.subheader("Próximas metas")
+metas = banco.listar_metas()
+abertas = metas[metas["status"] != "concluída"].head(5)
+if abertas.empty:
+    st.success("Nenhuma meta pendente. 🎉")
+for m in abertas.itertuples():
+    st.write(f"{situacao_meta(m.prazo, m.status)} · **{m.titulo}**"
+             + (f" — até {pd.Timestamp(m.prazo):%d/%m/%Y}" if m.prazo else ""))
+
+decisoes = banco.listar_decisoes()
+hoje = pd.Timestamp.today().strftime("%Y-%m-%d")
+pend = decisoes[decisoes["revisar_em"].notna() & (decisoes["revisar_em"] <= hoje)]
+if not pend.empty:
+    st.warning(f"⏰ {len(pend)} decisão(ões) do diário para revisar.")

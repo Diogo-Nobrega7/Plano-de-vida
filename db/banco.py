@@ -12,7 +12,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from db.dados_iniciais import CENARIOS_INICIAIS, CONFIG_INICIAL, fases_do_cenario
+from db.dados_iniciais import (CARREIRAS_INICIAIS, CENARIOS_INICIAIS, CONFIG_INICIAL, CRITERIOS_INICIAIS,
+                               DECISOES_INICIAIS, METAS_INICIAIS, fases_do_cenario)
 
 RAIZ = Path(__file__).resolve().parent.parent
 # A variável de ambiente PLANO_DB permite usar outro arquivo (útil em testes).
@@ -46,6 +47,28 @@ def inicializar() -> None:
                         " renda_min, renda_max, aporte_mensal) VALUES (?, ?, ?, ?, ?, ?, ?)",
                         (cur.lastrowid, *fase),
                     )
+        _semear_modulo2(con)
+
+
+def _vazia(con: sqlite3.Connection, tabela: str) -> bool:
+    return con.execute(f"SELECT COUNT(*) FROM {tabela}").fetchone()[0] == 0
+
+
+def _semear_modulo2(con: sqlite3.Connection) -> None:
+    """Dados iniciais do Módulo 2 (cada tabela só é preenchida se estiver vazia)."""
+    if _vazia(con, "metas"):
+        con.executemany("INSERT INTO metas (titulo, area, prazo, status) VALUES (?, ?, ?, ?)", METAS_INICIAIS)
+    if _vazia(con, "criterios"):
+        con.executemany("INSERT INTO criterios (nome, peso, descricao) VALUES (?, ?, ?)", CRITERIOS_INICIAIS)
+    if _vazia(con, "carreiras"):
+        ids_crit = [r[0] for r in con.execute("SELECT id FROM criterios ORDER BY id")]
+        for nome, (notas, obs) in CARREIRAS_INICIAIS.items():
+            cid = con.execute("INSERT INTO carreiras (nome, notas) VALUES (?, ?)", (nome, obs)).lastrowid
+            con.executemany("INSERT INTO notas_carreira VALUES (?, ?, ?)",
+                            [(cid, crit, n) for crit, n in zip(ids_crit, notas)])
+    if _vazia(con, "decisoes"):
+        con.executemany("INSERT INTO decisoes (data, decisao, premissas, revisar_em) VALUES (?, ?, ?, ?)",
+                        DECISOES_INICIAIS)
 
 
 # --------------------------------------------------------------------------
@@ -168,3 +191,94 @@ def salvar_fases(cenario_id: int, df: pd.DataFrame) -> None:
                     float(l.get("aporte_mensal") or 0),
                 ),
             )
+
+
+# --------------------------------------------------------------------------
+# Módulo 2: metas
+# --------------------------------------------------------------------------
+
+def listar_metas() -> pd.DataFrame:
+    with conectar() as con:
+        return pd.read_sql("SELECT * FROM metas ORDER BY status = 'concluída', prazo", con)
+
+
+def salvar_metas(df: pd.DataFrame) -> None:
+    """Substitui todas as metas pelo conteúdo da tabela editada."""
+    with conectar() as con:
+        con.execute("DELETE FROM metas")
+        for _, l in df.dropna(subset=["titulo"]).iterrows():
+            con.execute(
+                "INSERT INTO metas (titulo, area, prazo, status, notas) VALUES (?, ?, ?, ?, ?)",
+                (l["titulo"], l.get("area") or "Pessoal", _data_texto(l.get("prazo")),
+                 l.get("status") or "não iniciada", l.get("notas")),
+            )
+
+
+def _data_texto(valor) -> str | None:
+    """Converte data (ou vazio) para texto AAAA-MM-DD."""
+    if valor is None or pd.isna(valor):
+        return None
+    return str(pd.Timestamp(valor).date())
+
+
+# --------------------------------------------------------------------------
+# Módulo 2: comparador de carreiras
+# --------------------------------------------------------------------------
+
+def listar_criterios() -> pd.DataFrame:
+    with conectar() as con:
+        return pd.read_sql("SELECT * FROM criterios ORDER BY id", con)
+
+
+def salvar_pesos(pesos: dict[str, float]) -> None:
+    with conectar() as con:
+        con.executemany("UPDATE criterios SET peso = ? WHERE nome = ?", [(p, n) for n, p in pesos.items()])
+
+
+def tabela_notas() -> pd.DataFrame:
+    """Uma linha por carreira, uma coluna por critério (nota 1-5) + observações."""
+    with conectar() as con:
+        longo = pd.read_sql(
+            "SELECT ca.nome AS carreira, cr.nome AS criterio, n.nota FROM notas_carreira n"
+            " JOIN carreiras ca ON ca.id = n.carreira_id JOIN criterios cr ON cr.id = n.criterio_id", con)
+        carreiras = pd.read_sql("SELECT nome AS carreira, notas AS observacoes FROM carreiras ORDER BY id", con)
+        criterios = listar_criterios()["nome"].tolist()
+    largo = longo.pivot(index="carreira", columns="criterio", values="nota") if not longo.empty else pd.DataFrame()
+    largo = largo.reindex(index=carreiras["carreira"], columns=criterios)
+    largo = largo.reset_index().merge(carreiras, on="carreira", how="left")
+    return largo
+
+
+def salvar_notas(df: pd.DataFrame) -> None:
+    """Substitui carreiras e notas pelo conteúdo da tabela editada (notas vazias viram 3)."""
+    criterios = listar_criterios()
+    with conectar() as con:
+        con.execute("DELETE FROM carreiras")
+        for _, l in df.dropna(subset=["carreira"]).iterrows():
+            cid = con.execute("INSERT INTO carreiras (nome, notas) VALUES (?, ?)",
+                              (l["carreira"], l.get("observacoes"))).lastrowid
+            for crit in criterios.itertuples():
+                nota = l.get(crit.nome)
+                nota = 3 if nota is None or pd.isna(nota) else min(5, max(1, float(nota)))
+                con.execute("INSERT INTO notas_carreira VALUES (?, ?, ?)", (cid, crit.id, nota))
+
+
+# --------------------------------------------------------------------------
+# Módulo 2: diário de decisões
+# --------------------------------------------------------------------------
+
+def listar_decisoes() -> pd.DataFrame:
+    with conectar() as con:
+        return pd.read_sql("SELECT * FROM decisoes ORDER BY data DESC, id DESC", con)
+
+
+def adicionar_decisao(data: str, decisao: str, premissas: str, revisar_em: str | None) -> None:
+    with conectar() as con:
+        con.execute("INSERT INTO decisoes (data, decisao, premissas, revisar_em) VALUES (?, ?, ?, ?)",
+                    (data, decisao.strip(), premissas.strip(), revisar_em))
+
+
+def registrar_revisao(decisao_id: int, resultado: str, nova_revisao: str | None) -> None:
+    with conectar() as con:
+        con.execute("UPDATE decisoes SET resultado = ?, revisar_em = ? WHERE id = ?",
+                    (resultado.strip(), nova_revisao, decisao_id))

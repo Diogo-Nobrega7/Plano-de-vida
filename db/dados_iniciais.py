@@ -42,3 +42,57 @@ def fases_do_cenario(nome_cenario: str) -> list[tuple]:
         (*base, aporte)
         for base, aporte in zip(_FASES_BASE, _APORTES[nome_cenario])
     ]
+
+
+# ===================== Módulo 2: Carreira =====================
+
+# (título, área, prazo, status)
+METAS_INICIAIS = [
+    ("Conversar com um dermatologista ou neurologista", "Carreira", "2027-03-31", "não iniciada"),
+    ("Conversar com um cirurgião", "Carreira", "2027-03-31", "não iniciada"),
+    ("Conhecer a rotina de um hospital (visita ou acompanhamento)", "Carreira", "2027-06-30", "não iniciada"),
+    ("Montar o plano de estudos do 2º ano para o ENEM", "Estudos", "2027-02-01", "não iniciada"),
+    ("Criar o sistema de acompanhamento e lançar as premissas", "Finanças", "2026-11-30", "em andamento"),
+    ("Abrir conta de investimento (com os pais) e fazer o 1º aporte", "Finanças", "2027-01-31", "não iniciada"),
+    ("Comparar Medicina com 2-3 alternativas no comparador", "Carreira", "2027-06-30", "não iniciada"),
+]
+
+# (nome, peso, descrição) — nota 5 = melhor PARA VOCÊ em todos os critérios
+CRITERIOS_INICIAIS = [
+    ("Tempo até renda boa", 2, "5 = ganha bem cedo; 1 = demora muitos anos"),
+    ("Piso de renda", 3, "5 = mesmo no pior caso a renda é boa; 1 = pode ganhar pouco"),
+    ("Teto de renda", 3, "5 = pode chegar muito alto; 1 = limitado"),
+    ("Custo de entrada", 2, "5 = barato/acessível; 1 = caro (faculdade, cursos, anos sem renda)"),
+    ("Horas por semana", 3, "5 = rotina leve e tempo com a família; 1 = muitas horas/plantões"),
+    ("Risco", 2, "5 = caminho seguro e previsível; 1 = muita incerteza"),
+    ("Afinidade", 4, "5 = adoro e me vejo fazendo isso; 1 = não tenho interesse"),
+]
+
+# Notas iniciais (mesma ordem dos critérios). São um PALPITE para começar a
+# conversa — revise, principalmente "Afinidade", que só você pode dar.
+CARREIRAS_INICIAIS = {
+    "Medicina (Dermato/Neuro + clínica)": (
+        [2, 5, 4, 2, 2, 4, 3],
+        "Piso alto e desemprego baixo; 6 anos de faculdade + 3 de residência; vestibular concorrido.",
+    ),
+    "Tecnologia/dados + empreendedorismo": (
+        [4, 3, 5, 4, 3, 2, 3],
+        "Começa a ganhar cedo; teto alto se empreender; mercado oscila mais.",
+    ),
+    "Carreira pública de elite (juiz, auditor, diplomata)": (
+        [2, 5, 3, 3, 4, 3, 3],
+        "Estabilidade e boa qualidade de vida; anos de estudo para concurso, aprovação incerta.",
+    ),
+    "Finanças/negócios": (
+        [3, 3, 5, 4, 2, 3, 3],
+        "Teto alto em mercado financeiro; rotina puxada no início de carreira.",
+    ),
+}
+
+# (data, decisão, premissas, revisar em)
+DECISOES_INICIAIS = [
+    ("2026-11-11", "Plano v1: Medicina (Dermatologia ou Neurologia + clínica própria) como carreira principal EM ANÁLISE.",
+     "Meta de R$ 50 mil/mês; liberdade financeira = R$ 15 mi; rendimento real de 5% a.a.; "
+     "cenário moderado atinge a meta por volta dos 55 anos. Medicina ainda será comparada com alternativas.",
+     "2027-11-11"),
+]
