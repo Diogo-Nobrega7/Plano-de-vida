@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+# Seus dados pessoais ficam só no seu computador
+dados/
+*.db
