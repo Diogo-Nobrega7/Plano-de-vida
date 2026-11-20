@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, Legend } from 'recharts'
 import { ShieldCheck, TrendingUp } from 'lucide-react'
-import { Badge, Cabecalho, Campo, Card, CardTitulo, NumberInput, Segmented, cx } from '@/components/ui'
+import { Badge, Cabecalho, Campo, Card, CardTitulo, NumberInput, Segmented, cx, eixo, grade, legenda, DicaGrafico } from '@/components/ui'
 import { CATALOGO, CDI, CURVA_CDI, IPCA_12M, IPCA_LONGO, SELIC, evolucao, simularInvestimento, taxasAnuais } from '@/lib/investimentos'
 import { brl, brlCurto, pct } from '@/lib/format'
 
@@ -31,7 +31,7 @@ export function InvestirPage() {
       {aba === 'comparar' && (
         <>
           <Card>
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
               <Campo rotulo="Valor inicial">{(id) => <NumberInput id={id} min={0} step={100} value={inicial} onValor={setInicial} />}</Campo>
               <Campo rotulo="Aporte mensal">{(id) => <NumberInput id={id} min={0} step={50} value={aporte} onValor={setAporte} />}</Campo>
               <Campo rotulo={`Prazo: ${anos} anos`}>{(id) => <input id={id} type="range" min={1} max={40} value={anos} onChange={(e) => setAnos(Number(e.target.value))} className="h-11" />}</Campo>
@@ -47,7 +47,7 @@ export function InvestirPage() {
             </div>
             <p className="mt-3 text-xs text-muted">CDI médio por ano: {CURVA_CDI.map((c) => pct(c, 1)).join(' → ')}. Prefixado e IPCA+ travam a taxa.</p>
           </Card>
-          <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.1fr]">
             <Card>
               <CardTitulo titulo={`Resultado em ${anos} anos`} sub="Já descontado o IR no resgate" icone={<TrendingUp size={18} />} />
               <ul className="flex flex-col gap-3.5">
@@ -68,11 +68,11 @@ export function InvestirPage() {
               <div className="h-80">
                 <ResponsiveContainer>
                   <LineChart data={dados} margin={{ top: 6, right: 10, left: 6, bottom: 0 }}>
-                    <CartesianGrid stroke="rgb(var(--line))" vertical={false} />
-                    <XAxis dataKey="ano" tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} />
-                    <YAxis tickFormatter={(v) => brlCurto(v).replace('R$ ', '')} width={56} tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} />
-                    <Tooltip formatter={(v: number) => brl(v)} labelFormatter={(l) => `Ano ${l}`} contentStyle={{ borderRadius: 12, border: '1px solid rgb(var(--line))', background: 'rgb(var(--surface))' }} />
-                    <Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
+                    <CartesianGrid {...grade} />
+                    <XAxis dataKey="ano" {...eixo} />
+                    <YAxis tickFormatter={(v) => brlCurto(v).replace('R$ ', '')} width={56} {...eixo} />
+                    <Tooltip content={<DicaGrafico formato={(v: number) => brl(v)} titulo={(l) => `Ano ${l}`} />} />
+                    <Legend {...legenda} />
                     {res.map(({ i }) => <Line key={i.nome} dataKey={i.nome} stroke={CORES[CATALOGO.indexOf(i)]} strokeWidth={2.2} dot={false} />)}
                   </LineChart>
                 </ResponsiveContainer>
@@ -83,7 +83,7 @@ export function InvestirPage() {
       )}
 
       {aba === 'tipos' && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {CATALOGO.map((i, k) => (
             <Card key={i.nome} className="flex flex-col gap-3">
               <div className="flex items-start justify-between gap-2">
@@ -104,7 +104,7 @@ export function InvestirPage() {
       )}
 
       {aba === 'comecar' && (
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <Card>
             <CardTitulo titulo="Uma ordem sensata" />
             <ol className="flex flex-col gap-4">

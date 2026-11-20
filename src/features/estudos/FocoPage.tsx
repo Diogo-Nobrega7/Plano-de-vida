@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Pause, Play, Plus, RotateCcw, Square, Trash2 } from 'lucide-react'
-import { Anel, Badge, Button, Cabecalho, Campo, Card, CardTitulo, Input, Modal, NumberInput, Select, Segmented, Vazio } from '@/components/ui'
+import { Anel, Badge, Button, Cabecalho, Campo, Card, CardTitulo, Input, Modal, NumberInput, Select, Segmented, Vazio, eixo, DicaGrafico } from '@/components/ui'
 import { useTabela } from '@/data/hooks'
 import { hojeISO, somarDias } from '@/lib/datas'
 import { dataBR, dataCurta, minutos, numero } from '@/lib/format'
@@ -48,7 +48,7 @@ export function FocoPage() {
     <div className="flex flex-col gap-6">
       <Cabecalho etiqueta="Estudos" titulo="Foco" sub="Cronômetro Pomodoro e registro das sessões. Cada minuto vale 1 XP, cada questão 2." acao={<Button variante="secundario" onClick={() => abrirRegistro(50)} icone={<Plus size={16} />}>Registrar sessão manual</Button>} />
 
-      <div className="grid gap-5 lg:grid-cols-[1.1fr_1fr]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.1fr_1fr]">
         <section className="hero rounded-2xl p-6 md:p-8 text-white shadow-md flex flex-col items-center gap-6">
           <Segmented rotulo="Duração" valor={preset} onChange={(v) => { setPreset(v); crono.zerar(Number(v)) }}
             opcoes={[{ valor: '25', rotulo: '25 min' }, { valor: '50', rotulo: '50 min' }, { valor: '90', rotulo: '90 min' }]} />
@@ -76,10 +76,10 @@ export function FocoPage() {
           <div className="h-48">
             <ResponsiveContainer>
               <BarChart data={dias} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
-                <XAxis dataKey="dia" tick={{ fontSize: 11, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} interval={1} />
-                <YAxis tick={{ fontSize: 11, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip cursor={{ fill: 'rgb(var(--sunken))' }} contentStyle={{ borderRadius: 12, border: '1px solid rgb(var(--line))', background: 'rgb(var(--surface))' }} formatter={(v: number) => [minutos(v * 60), 'Foco']} />
-                <Bar dataKey="horas" fill="rgb(var(--brand))" radius={[6, 6, 0, 0]} />
+                <XAxis dataKey="dia" {...eixo} interval={1} />
+                <YAxis {...eixo} allowDecimals={false} />
+                <Tooltip cursor={{ fill: 'rgb(var(--sunken))' }} content={<DicaGrafico formato={(v: number) => minutos(v * 60)} />} />
+                <Bar dataKey="horas" name="Foco" fill="rgb(var(--brand))" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

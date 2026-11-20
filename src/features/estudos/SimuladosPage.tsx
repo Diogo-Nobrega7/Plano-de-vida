@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { ClipboardList, Plus, Trash2 } from 'lucide-react'
-import { Badge, Button, Cabecalho, Campo, Card, CardTitulo, Input, Modal, NumberInput, Vazio } from '@/components/ui'
+import { Badge, Button, Cabecalho, Campo, Card, CardTitulo, Input, Modal, NumberInput, Vazio, eixo, grade, legenda, DicaGrafico } from '@/components/ui'
 import { useTabela } from '@/data/hooks'
 import { usePerfil } from '@/app/PerfilContext'
 import { hojeISO } from '@/lib/datas'
@@ -38,17 +38,17 @@ export function SimuladosPage() {
         <Card><Vazio icone={<ClipboardList size={22} />} titulo="Nenhum simulado ainda" texto="Faça uma prova antiga do ENEM cronometrada e lance as notas aqui." acao={<Button onClick={() => setModal(true)} icone={<Plus size={16} />}>Registrar</Button>} /></Card>
       ) : (
         <>
-          <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr]">
             <Card>
               <CardTitulo titulo="Evolução" sub={`${simulados.dados.length} simulados`} />
               <div className="h-72">
                 <ResponsiveContainer>
                   <LineChart data={dados} margin={{ top: 6, right: 10, left: -18, bottom: 0 }}>
-                    <CartesianGrid stroke="rgb(var(--line))" vertical={false} />
-                    <XAxis dataKey="nome" tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} />
-                    <YAxis domain={[300, 1000]} tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid rgb(var(--line))', background: 'rgb(var(--surface))' }} />
-                    <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                    <CartesianGrid {...grade} />
+                    <XAxis dataKey="nome" {...eixo} />
+                    <YAxis domain={[300, 1000]} {...eixo} />
+                    <Tooltip content={<DicaGrafico />} />
+                    <Legend {...legenda} />
                     {NOTAS.map((a, i) => <Line key={a.chave} dataKey={a.nome} stroke={CORES[i]} strokeWidth={2.5} dot={{ r: 3 }} connectNulls />)}
                   </LineChart>
                 </ResponsiveContainer>

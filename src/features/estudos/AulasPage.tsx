@@ -103,7 +103,7 @@ export function AulasPage() {
       {!aulas.dados.length ? (
         <Card><Vazio icone={<PlayCircle size={24} />} titulo="Nenhuma aula ainda" texto="Cole o link de uma videoaula do YouTube e escolha a matéria. Comece pelos conteúdos de frequência alta." acao={<Button onClick={() => setModal(true)} icone={<Plus size={16} />}>Adicionar aula</Button>} /></Card>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[1fr_340px] items-start">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px] items-start">
           <div>{painel}</div>
           <Card className="!p-2">
             <div className="p-2">

@@ -41,7 +41,7 @@ export function RevisoesPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Segmented rotulo="Modo" valor={modo} onChange={setModo} opcoes={[{ valor: 'revisar', rotulo: `Revisar agora (${fila.length})` }, { valor: 'todos', rotulo: `Todos (${revisoes.dados.length})` }]} />
-        <div className="flex gap-1.5">{INTERVALOS.map((d, i) => <Badge key={d} tom={i < 2 ? 'fire' : i < 4 ? 'brand' : 'ok'}>Caixa {i + 1}: {revisoes.dados.filter((r) => r.caixa === i + 1).length}</Badge>)}</div>
+        <div className="flex flex-wrap gap-1.5">{INTERVALOS.map((d, i) => <Badge key={d} tom={i < 2 ? 'fire' : i < 4 ? 'brand' : 'ok'}>Caixa {i + 1}: {revisoes.dados.filter((r) => r.caixa === i + 1).length}</Badge>)}</div>
       </div>
 
       {modo === 'revisar' ? (

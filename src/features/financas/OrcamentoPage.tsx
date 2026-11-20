@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Pie, PieChart, ResponsiveContainer, Tooltip, Cell } from 'recharts'
-import { Cabecalho, Campo, Card, CardTitulo, NumberInput, Segmented, Stat, StatRow } from '@/components/ui'
+import { Cabecalho, Campo, Card, CardTitulo, NumberInput, Segmented, Stat, StatRow, DicaGrafico } from '@/components/ui'
 import { PERFIS, estimar, regra503020, type Perfil } from '@/lib/orcamento'
 import { salarioLiquido } from '@/lib/impostos'
 import { brl } from '@/lib/format'
@@ -23,7 +23,7 @@ export function OrcamentoPage() {
     <div className="flex flex-col gap-6">
       <Cabecalho etiqueta="Finanças" titulo="Orçamento familiar" sub="Estimativa de gastos por tópico com base na pesquisa de orçamentos do IBGE. Troque pelos valores reais da sua casa." />
       <Card>
-        <div className="grid gap-4 md:grid-cols-4 items-end">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4 items-end">
           <Segmented rotulo="Partir de" valor={base} onChange={setBase} opcoes={[{ valor: 'liquida', rotulo: 'Renda líquida' }, { valor: 'bruto', rotulo: 'Salário bruto' }]} />
           <Campo rotulo={base === 'bruto' ? 'Salário bruto (CLT)' : 'Renda líquida da família'}>{(id) => <NumberInput id={id} min={0} step={500} value={valor} onValor={setValor} />}</Campo>
           <Segmented rotulo="Perfil" valor={perfil} onChange={(v) => { setPerfil(v); setAjustes({}) }} opcoes={PERFIS.map((p) => ({ valor: p, rotulo: p }))} />
@@ -36,7 +36,7 @@ export function OrcamentoPage() {
         <Stat rotulo="Sobra para investir" valor={brl(renda - total)} sub={`${renda ? Math.round(((renda - total) / renda) * 100) : 0}% da renda`} tom={renda - total >= 0 ? 'ok' : 'bad'} />
         <Stat rotulo="Regra 50/30/20" valor={brl(r.investir)} sub="sugestão para investir" />
       </StatRow>
-      <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr] items-start">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.4fr_1fr] items-start">
         <Card>
           <CardTitulo titulo="Gastos por tópico" sub="Edite qualquer valor" />
           <ul className="flex flex-col divide-y divide-line">
@@ -57,7 +57,7 @@ export function OrcamentoPage() {
                 <Pie data={linhas} dataKey="valor" nameKey="topico" innerRadius="58%" outerRadius="92%" paddingAngle={2} stroke="none">
                   {linhas.map((l, k) => <Cell key={l.topico} fill={CORES[k]} />)}
                 </Pie>
-                <Tooltip formatter={(v: number) => brl(v)} contentStyle={{ borderRadius: 12, border: '1px solid rgb(var(--line))', background: 'rgb(var(--surface))' }} />
+                <Tooltip content={<DicaGrafico formato={(v: number) => brl(v)} />} />
               </PieChart>
             </ResponsiveContainer>
           </div>

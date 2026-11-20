@@ -34,7 +34,7 @@ export function MetasPage() {
         </div>
         <div className="ml-auto"><Segmented rotulo="Área" valor={filtro} onChange={setFiltro} opcoes={['Todas', ...AREAS].map((a) => ({ valor: a, rotulo: a }))} /></div>
       </Card>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {lista.map((m) => {
           const s = situacaoMeta(m.prazo, m.status)
           return (

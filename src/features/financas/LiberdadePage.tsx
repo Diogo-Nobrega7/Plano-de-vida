@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Area, AreaChart, CartesianGrid, Legend, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Plus, Save, Trash2 } from 'lucide-react'
-import { Badge, Button, Cabecalho, Campo, Card, CardTitulo, NumberInput, Segmented, cx } from '@/components/ui'
+import { Badge, Button, Cabecalho, Campo, Card, CardTitulo, NumberInput, Segmented, cx, eixo, grade, legenda, DicaGrafico } from '@/components/ui'
 import { useAdiado, useTabela } from '@/data/hooks'
 import { usePerfil } from '@/app/PerfilContext'
 import { diasEntre, hojeISO } from '@/lib/datas'
@@ -70,11 +70,11 @@ export function LiberdadePage() {
           <ResponsiveContainer>
             <AreaChart data={dados} margin={{ top: 10, right: 10, left: 6, bottom: 0 }}>
               <defs>{series.map((s, i) => <linearGradient key={s.c.id} id={`g${i}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={CORES[i % CORES.length]} stopOpacity={0.25} /><stop offset="100%" stopColor={CORES[i % CORES.length]} stopOpacity={0} /></linearGradient>)}</defs>
-              <CartesianGrid stroke="rgb(var(--line))" vertical={false} />
-              <XAxis dataKey="idade" tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} interval={4} />
-              <YAxis tickFormatter={(v) => brlCurto(v).replace('R$ ', '')} tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} width={58} />
-              <Tooltip formatter={(v: number) => brlCurto(v)} labelFormatter={(l) => `${l} anos`} contentStyle={{ borderRadius: 12, border: '1px solid rgb(var(--line))', background: 'rgb(var(--surface))' }} />
-              <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+              <CartesianGrid {...grade} />
+              <XAxis dataKey="idade" {...eixo} interval={4} />
+              <YAxis tickFormatter={(v) => brlCurto(v).replace('R$ ', '')} {...eixo} width={58} />
+              <Tooltip content={<DicaGrafico formato={(v: number) => brlCurto(v)} titulo={(l) => `${l} anos`} />} />
+              <Legend {...legenda} />
               {nominal === 'real' && <ReferenceLine y={meta} stroke="rgb(var(--faint))" strokeDasharray="6 6" label={{ value: 'meta', position: 'insideTopLeft', fill: 'rgb(var(--muted))', fontSize: 12 }} />}
               {series.map((s, i) => <Area key={s.c.id} dataKey={s.c.nome} stroke={CORES[i % CORES.length]} strokeWidth={s.c.nome === 'Moderado' ? 3 : 2} fill={`url(#g${i})`} />)}
             </AreaChart>
@@ -82,7 +82,7 @@ export function LiberdadePage() {
         </div>
       </Card>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_320px] items-start">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px] items-start">
         <Card>
           <CardTitulo titulo="Fases da vida" sub="Escolha um cenário para editar renda e aportes de cada fase" />
           <div className="flex flex-wrap gap-2 mb-4">

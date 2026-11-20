@@ -14,7 +14,7 @@ export function SalarioPage() {
   return (
     <div className="flex flex-col gap-6">
       <Cabecalho etiqueta="Finanças" titulo="Salário e impostos" sub="Carteira assinada (CLT) com as regras de 2026: INSS progressivo e IR com isenção até R$ 5 mil (Lei 15.270/2025)." />
-      <div className="grid gap-5 lg:grid-cols-[1fr_1.2fr] items-start">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.2fr] items-start">
         <Card className="flex flex-col gap-4">
           <Campo rotulo="Salário bruto mensal">{(id) => <NumberInput id={id} min={0} step={500} value={bruto} onValor={setBruto} />}</Campo>
           <input aria-label="Ajustar salário" type="range" min={1621} max={60000} step={100} value={bruto ?? 0} onChange={(e) => setBruto(Number(e.target.value))} />

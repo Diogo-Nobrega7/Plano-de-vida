@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { AlertTriangle, CheckCircle2, ChevronDown, Copy, PenLine, Plus, Save, Sparkles, Trash2 } from 'lucide-react'
-import { Badge, Button, Cabecalho, Card, CardTitulo, Input, Segmented, Select, Textarea, Vazio, cx, toast } from '@/components/ui'
+import { Badge, Button, Cabecalho, Card, CardTitulo, Input, Segmented, Select, Textarea, Vazio, cx, toast, eixo, grade, legenda, DicaGrafico } from '@/components/ui'
 import { useTabela } from '@/data/hooks'
 import { link } from '@/app/routes'
 import { hojeISO } from '@/lib/datas'
@@ -58,7 +58,7 @@ function Escrever() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_380px] items-start">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] items-start">
       <div className="flex flex-col gap-4">
         <Card className="!p-4">
           <label htmlFor="tema" className="text-xs font-extrabold uppercase tracking-[0.1em] text-brand">Tema</label>
@@ -145,11 +145,11 @@ function Minhas() {
           <div className="h-64">
             <ResponsiveContainer>
               <LineChart data={dados} margin={{ top: 6, right: 10, left: -18, bottom: 0 }}>
-                <CartesianGrid stroke="rgb(var(--line))" vertical={false} />
-                <XAxis dataKey="nome" tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} />
-                <YAxis domain={[0, 200]} ticks={[0, 40, 80, 120, 160, 200]} tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid rgb(var(--line))', background: 'rgb(var(--surface))' }} />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                <CartesianGrid {...grade} />
+                <XAxis dataKey="nome" {...eixo} />
+                <YAxis domain={[0, 200]} ticks={[0, 40, 80, 120, 160, 200]} {...eixo} />
+                <Tooltip content={<DicaGrafico />} />
+                <Legend {...legenda} />
                 {CHAVES.map((k, i) => <Line key={k} dataKey={COMPETENCIAS[k].curto} stroke={CORES[i]} strokeWidth={2.5} dot={{ r: 3 }} />)}
               </LineChart>
             </ResponsiveContainer>
@@ -197,7 +197,7 @@ function Temas() {
   const escrever = (t: string) => { sessionStorage.setItem('rumo:tema', t); location.hash = link('redacao', 'escrever') }
   const lista = (origem: 'ENEM' | 'Treino') => temas.dados.filter((t) => t.origem === origem)
   return (
-    <div className="grid gap-5 lg:grid-cols-2 items-start">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 items-start">
       {(['ENEM', 'Treino'] as const).map((o) => (
         <Card key={o}>
           <CardTitulo titulo={o === 'ENEM' ? 'Temas das provas do ENEM' : 'Temas para treinar'} sub={o === 'ENEM' ? '2016 a 2026' : 'Eixos que mais caem: saúde, educação, tecnologia, cidadania, meio ambiente'} />
@@ -240,7 +240,7 @@ function Guia() {
           ))}
         </div>
       </section>
-      <div className="grid gap-5 lg:grid-cols-[1fr_340px] items-start">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px] items-start">
         <Card>
           <CardTitulo titulo="As 5 competências" sub="Cartilha do Participante 2026" />
           <div className="flex flex-col gap-5">

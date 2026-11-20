@@ -23,7 +23,7 @@ export function ComparadorPage() {
     <div className="flex flex-col gap-6">
       <Cabecalho etiqueta="Carreira" titulo="Comparador de carreiras" sub="A mesma régua para todas. Nota 5 = melhor para você em todos os critérios (ex.: em Horas por semana, 5 = poucas horas). As notas iniciais são um palpite: revise, principalmente Afinidade." />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_360px] items-start">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px] items-start">
         <Card className="!p-0 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[720px]">

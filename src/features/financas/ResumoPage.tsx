@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { ArrowDownRight, ArrowUpRight, PiggyBank, Plus, Trash2, Wallet } from 'lucide-react'
-import { Badge, Button, Cabecalho, Campo, Card, CardTitulo, Input, Modal, NumberInput, Segmented, Select, Stat, StatRow, Vazio } from '@/components/ui'
+import { Badge, Button, Cabecalho, Campo, Card, CardTitulo, Input, Modal, NumberInput, Segmented, Select, Stat, StatRow, Vazio, eixo, DicaGrafico } from '@/components/ui'
 import { useTabela } from '@/data/hooks'
 import { hojeISO, mesAtual } from '@/lib/datas'
 import { brl, dataBR } from '@/lib/format'
@@ -63,16 +63,16 @@ export function ResumoPage() {
         <Stat rotulo="Sobrou" valor={brl(sobra)} sub={`investiu ${brl(soma('aporte'))}`} tom={sobra >= 0 ? 'ok' : 'bad'} />
       </StatRow>
 
-      <div className="grid gap-5 lg:grid-cols-[1.3fr_1fr]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.3fr_1fr]">
         <Card>
           <CardTitulo titulo="Últimos meses" />
           {meses.length ? (
             <div className="h-64">
               <ResponsiveContainer>
                 <BarChart data={meses} margin={{ top: 6, right: 6, left: -6, bottom: 0 }}>
-                  <XAxis dataKey="mes" tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 12, fill: 'rgb(var(--muted))' }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v / 1000}k`} />
-                  <Tooltip cursor={{ fill: 'rgb(var(--sunken))' }} formatter={(v: number) => brl(v)} contentStyle={{ borderRadius: 12, border: '1px solid rgb(var(--line))', background: 'rgb(var(--surface))' }} />
+                  <XAxis dataKey="mes" {...eixo} />
+                  <YAxis {...eixo} tickFormatter={(v) => `${v / 1000}k`} />
+                  <Tooltip cursor={{ fill: 'rgb(var(--sunken))' }} content={<DicaGrafico formato={(v: number) => brl(v)} />} />
                   <Bar dataKey="Receitas" fill="#1D4ED8" radius={[5, 5, 0, 0]} />
                   <Bar dataKey="Despesas" fill="#F59E0B" radius={[5, 5, 0, 0]} />
                   <Bar dataKey="Aportes" fill="#16A34A" radius={[5, 5, 0, 0]} />
@@ -95,7 +95,7 @@ export function ResumoPage() {
         </Card>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2 items-start">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 items-start">
         <Card>
           <CardTitulo titulo="Investimentos" sub={`${inv.dados.length} aplicações`} />
           <ul className="flex flex-col gap-2">

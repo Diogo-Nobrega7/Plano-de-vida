@@ -14,7 +14,7 @@ export function PerfilPage() {
   return (
     <div className="flex flex-col gap-6">
       <Cabecalho titulo="Perfil e metas" sub="Tudo o que personaliza o seu painel." acao={<Button icone={<Save size={16} />} onClick={() => salvarPerfil(p, 'Perfil salvo')}>Salvar</Button>} />
-      <div className="grid gap-5 lg:grid-cols-2 items-start">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 items-start">
         <Card>
           <CardTitulo titulo="Sobre você" />
           <div className="grid gap-4 sm:grid-cols-2">

@@ -43,12 +43,19 @@
 }
 
 html, body, #root { min-height: 100%; }
-body { @apply bg-bg text-ink font-sans antialiased; font-size: 15px; }
+body { overflow-x: clip; } /* nada estoura para os lados no celular */
+body {
+  @apply bg-bg text-ink font-sans antialiased; font-size: 15px;
+  /* brilho azul bem leve no topo: identidade sem pesar */
+  background-image: radial-gradient(1200px 420px at 50% -120px, rgb(var(--brand) / .07), transparent 70%);
+  background-repeat: no-repeat;
+}
 .num { font-variant-numeric: tabular-nums; }
 .titulo { @apply font-extrabold tracking-[-0.025em]; }
 
 /* Cartão padrão */
 .card { @apply bg-surface border border-line rounded-xl shadow-sm; }
+a.card, button.card { @apply transition-[box-shadow,transform] duration-200 hover:shadow-md hover:-translate-y-px; }
 
 /* Faixa de destaque (tela Hoje, cabeçalhos) */
 .hero {

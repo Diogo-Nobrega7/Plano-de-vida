@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ArrowRight, BookMarked, Check, Circle, Flame, PenLine, RotateCcw, Target, Timer, Trophy, Zap } from 'lucide-react'
+import { ArrowRight, BarChart3, BookMarked, Check, Circle, Flame, PenLine, RotateCcw, Target, Timer, Trophy, Zap } from 'lucide-react'
 import { Anel, Badge, Card, CardTitulo, Carregando, Progress, cx } from '@/components/ui'
 import { usePerfil } from '@/app/PerfilContext'
 import { link } from '@/app/routes'
@@ -45,7 +45,7 @@ export function HojePage() {
   const feitas = tarefas.filter((t) => t.feito).length
 
   const dica = vencidas.length
-    ? `Comece pelas ${vencidas.length} revisões vencidas: é o que mais segura o que você já aprendeu.`
+    ? `Comece ${vencidas.length === 1 ? 'pela revisão vencida' : `pelas ${vencidas.length} revisões vencidas`}: é o que mais segura o que você já aprendeu.`
     : proximoConteudo ? `Que tal começar por ${proximoConteudo.nome}? Está entre os assuntos que mais caem.` : 'Tudo em dia. Bora manter a sequência.'
 
   // Constância: últimas 12 semanas
@@ -58,9 +58,16 @@ export function HojePage() {
   const semanas = Array.from({ length: 12 }, (_, w) => Array.from({ length: 7 }, (_, d) => somarDias(inicio, w * 7 + d)))
   const tom = (min: number) => (min >= 120 ? 'bg-brand' : min >= 60 ? 'bg-brand/70' : min > 0 ? 'bg-brand/35' : 'bg-sunken')
 
+  const diasEstudo = useMemo(() => new Set(p.datas), [p.datas])
   const semanaAtual = Array.from({ length: 7 }, (_, i) => somarDias(inicioSemana(hoje), i))
   const letras = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
 
+  const ini7 = inicioSemana(hoje), iniAnt = somarDias(ini7, -7)
+  const daSemana = p.sessoes.filter((s) => s.data >= ini7)
+  const minSemana = daSemana.reduce((a, s) => a + s.minutos, 0)
+  const minAnterior = p.sessoes.filter((s) => s.data >= iniAnt && s.data < ini7).reduce((a, s) => a + s.minutos, 0)
+  const qSemana = daSemana.reduce((a, s) => a + (s.questoes ?? 0), 0)
+  const aSemana = daSemana.reduce((a, s) => a + (s.acertos ?? 0), 0)
   const acertoPct = p.totalQuestoes ? p.totalAcertos / p.totalQuestoes : 0
   const patrimonio = investimentos.dados.reduce((s, i) => s + Number(i.saldo_atual), 0)
   const moderado = cenarios.dados.find((c) => c.nome === 'Moderado') ?? cenarios.dados[0]
@@ -68,12 +75,13 @@ export function HojePage() {
   const idadeMeta = moderado ? idadeQueAtinge(simularPatrimonio(moderado.fases, moderado.taxa_real, idade(perfil.nascimento, hoje), patrimonio), meta) : null
   const proximasMetas = metas.dados.filter((m) => m.status !== 'concluída').slice(0, 3)
   const ganhas = p.conquistas.filter((c) => c.ganhou)
+  const proxima = p.conquistas.find((c) => !c.ganhou)
 
   if (p.carregando) return <Carregando />
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <section className="hero lg:col-span-2 rounded-2xl p-6 md:p-8 text-white shadow-md flex flex-col gap-6 overflow-hidden relative">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -91,9 +99,9 @@ export function HojePage() {
               <p className="font-extrabold">Plano de hoje</p>
               <Badge tom="brand">{feitas} de {tarefas.length}</Badge>
             </div>
-            <ul className="grid gap-2 sm:grid-cols-2">
+            <ul className="grid gap-2 grid-cols-1 sm:grid-cols-2">
               {tarefas.map((t) => (
-                <li key={t.texto}>
+                <li key={t.texto} className="min-w-0">
                   <a href={t.href} className={cx('group flex items-center gap-3 rounded-lg px-3 py-3 transition-colors', t.feito ? 'bg-ok-soft' : 'bg-sunken hover:bg-brand-soft')}>
                     <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-full', t.feito ? 'bg-ok text-white' : 'bg-surface text-brand ring-1 ring-line')}>
                       {t.feito ? <Check size={15} strokeWidth={3} /> : t.icone}
@@ -128,7 +136,7 @@ export function HojePage() {
             </div>
             <div className="mt-3 grid grid-cols-7 gap-1.5">
               {semanaAtual.map((d, i) => {
-                const ok = porDia.has(d), futuro = d > hoje
+                const ok = diasEstudo.has(d), futuro = d > hoje
                 return (
                   <div key={d} className="flex flex-col items-center gap-1">
                     <span className={cx('grid h-8 w-full max-w-[34px] place-items-center rounded-md', ok ? 'bg-fire text-white' : futuro ? 'bg-surface/60' : 'bg-surface', d === hoje && !ok && 'ring-2 ring-fire/40')}>
@@ -140,12 +148,11 @@ export function HojePage() {
               })}
             </div>
           </div>
-          <div>
-            <p className="text-[13px] font-bold text-muted mb-2 flex items-center gap-1.5"><Trophy size={14} />Conquistas · {ganhas.length} de {p.conquistas.length}</p>
-            <div className="flex flex-wrap gap-1.5">
-              {p.conquistas.slice(0, 6).map((c) => (
-                <span key={c.nome} title={c.descricao} className={cx('rounded-full px-2.5 py-1 text-xs font-bold', c.ganhou ? 'bg-brand-soft text-brand' : 'bg-sunken text-faint')}>{c.nome}</span>
-              ))}
+          <div className="flex items-center gap-3 rounded-lg bg-sunken px-4 py-3">
+            <Trophy size={18} className="text-brand shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold">{ganhas.length} de {p.conquistas.length} conquistas</p>
+              <p className="text-xs text-muted truncate">{proxima ? `Próxima: ${proxima.nome} · ${proxima.descricao.toLowerCase()}` : 'Você liberou todas 🏆'}</p>
             </div>
           </div>
         </Card>
@@ -154,7 +161,7 @@ export function HojePage() {
       <Card>
         <CardTitulo titulo="Missões do dia" sub="Metas diárias ajustáveis em Perfil" icone={<Target size={18} />}
           acao={<Badge tom={p.missoes.every((m) => m.feito >= m.meta) ? 'ok' : 'neutro'}><Zap size={12} />{p.missoes.filter((m) => m.feito >= m.meta).length}/{p.missoes.length}</Badge>} />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
           {p.missoes.map((m) => {
             const ok = m.feito >= m.meta
             const fmt = (v: number) => (m.unidade === 'min' ? minutos(v) : numero(v))
@@ -169,29 +176,45 @@ export function HojePage() {
         </div>
       </Card>
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.35fr_1fr] items-start">
         <Card>
-          <CardTitulo titulo="Questões" sub="Registradas nas sessões de foco" />
-          {p.totalQuestoes ? (
-            <div className="flex items-center gap-5">
-              <Anel valor={acertoPct} tamanho={124} espessura={14} fundo="rgb(var(--bad) / .25)">
-                <span><span className="titulo text-2xl num block leading-none">{Math.round(acertoPct * 100)}%</span><span className="text-[11px] font-bold text-muted">acertos</span></span>
-              </Anel>
-              <div className="flex flex-col gap-2.5 text-sm">
-                <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-sm bg-brand" />Acertos <b className="num">{numero(p.totalAcertos)}</b></span>
-                <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-sm bg-bad/40" />Erros <b className="num">{numero(p.totalQuestoes - p.totalAcertos)}</b></span>
-                <span className="text-muted">Total <b className="num text-ink">{numero(p.totalQuestoes)}</b></span>
-              </div>
+          <CardTitulo titulo="Sua semana" sub="Tempo de foco, questões e constância" icone={<BarChart3 size={18} />} />
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            <div className="rounded-lg bg-sunken p-3.5">
+              <p className="text-xs font-bold text-muted">Foco</p>
+              <p className="titulo text-2xl num">{minutos(minSemana)}</p>
+              <p className={cx('text-xs font-bold', minSemana >= minAnterior ? 'text-ok' : 'text-muted')}>{minAnterior ? `${minSemana >= minAnterior ? '▲' : '▼'} vs ${minutos(minAnterior)}` : 'semana anterior: 0'}</p>
             </div>
-          ) : <p className="text-sm text-muted">Ao registrar uma sessão, informe quantas questões fez e acertou: o gráfico aparece aqui.</p>}
+            <div className="rounded-lg bg-sunken p-3.5">
+              <p className="text-xs font-bold text-muted">Questões</p>
+              <p className="titulo text-2xl num">{numero(qSemana)}</p>
+              <p className="text-xs font-bold text-muted">{qSemana ? `${Math.round((aSemana / qSemana) * 100)}% de acerto` : 'nenhuma ainda'}</p>
+            </div>
+            <div className="rounded-lg bg-sunken p-3.5">
+              <p className="text-xs font-bold text-muted">Acerto geral</p>
+              <p className="titulo text-2xl num">{p.totalQuestoes ? `${Math.round(acertoPct * 100)}%` : '—'}</p>
+              <p className="text-xs font-bold text-muted">{numero(p.totalQuestoes)} questões</p>
+            </div>
+          </div>
+          <div className="flex justify-between gap-1 max-w-[440px]" role="img" aria-label="Mapa de dias estudados nas últimas 12 semanas">
+            {semanas.map((sem, w) => (
+              <div key={w} className="flex flex-col gap-1">
+                {sem.map((d) => <span key={d} title={`${dataBR(d)}: ${minutos(porDia.get(d) ?? 0)}`} className={cx('block h-[15px] w-[15px] sm:h-[18px] sm:w-[18px] rounded-[4px]', d > hoje ? 'bg-transparent' : tom(porDia.get(d) ?? (diasEstudo.has(d) ? 1 : 0)))} />)}
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
+            <span>Últimas 12 semanas · {minutos(p.minutosTotal)} no total</span>
+            <span className="flex items-center gap-1">menos <span className="h-2.5 w-2.5 rounded-sm bg-sunken" /><span className="h-2.5 w-2.5 rounded-sm bg-brand/35" /><span className="h-2.5 w-2.5 rounded-sm bg-brand/70" /><span className="h-2.5 w-2.5 rounded-sm bg-brand" /> mais</span>
+          </div>
         </Card>
 
         <Card>
-          <CardTitulo titulo="Revisões de hoje" sub={vencidas.length ? `${vencidas.length} para revisar` : 'Nada vencido'}
+          <CardTitulo titulo="Revisões de hoje" sub={vencidas.length ? `${vencidas.length} para revisar` : 'Nada vencido'} icone={<RotateCcw size={18} />}
             acao={<a href={link('estudos', 'revisoes')} className="text-sm font-bold text-brand">Abrir</a>} />
           {vencidas.length ? (
             <ul className="divide-y divide-line -my-2">
-              {vencidas.slice(0, 5).map((r) => (
+              {vencidas.slice(0, 6).map((r) => (
                 <li key={r.id} className="flex items-center gap-3 py-2.5">
                   <span className={cx('h-2 w-2 rounded-full shrink-0', r.proxima < hoje ? 'bg-bad' : 'bg-brand')} />
                   <span className="min-w-0 flex-1">
@@ -202,26 +225,16 @@ export function HojePage() {
                 </li>
               ))}
             </ul>
-          ) : <p className="text-sm text-muted">Cadastre cada questão errada em Revisões: o app avisa o dia certo de revisar.</p>}
-        </Card>
-
-        <Card>
-          <CardTitulo titulo="Constância" sub="Últimas 12 semanas" />
-          <div className="flex gap-1.5" role="img" aria-label="Mapa de dias estudados nas últimas 12 semanas">
-            {semanas.map((sem, w) => (
-              <div key={w} className="flex flex-1 flex-col gap-1.5">
-                {sem.map((d) => <span key={d} title={`${dataBR(d)}: ${minutos(porDia.get(d) ?? 0)}`} className={cx('aspect-square w-full rounded-[4px]', d > hoje ? 'bg-transparent' : tom(porDia.get(d) ?? 0))} />)}
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 flex items-center justify-between text-xs text-muted">
-            <span>{minutos(p.minutosTotal)} no total</span>
-            <span className="flex items-center gap-1">menos <span className="h-2.5 w-2.5 rounded-sm bg-sunken" /><span className="h-2.5 w-2.5 rounded-sm bg-brand/35" /><span className="h-2.5 w-2.5 rounded-sm bg-brand/70" /><span className="h-2.5 w-2.5 rounded-sm bg-brand" /> mais</span>
-          </div>
+          ) : (
+            <div className="flex flex-col items-start gap-3 rounded-lg bg-sunken p-4">
+              <p className="text-sm text-muted">Cadastre cada questão que errar: o Rumo avisa o dia certo de revisar (1, 3, 7, 15, 30 e 60 dias).</p>
+              <a href={link('estudos', 'revisoes')} className="text-sm font-bold text-brand">Cadastrar um erro →</a>
+            </div>
+          )}
         </Card>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card className="flex flex-col gap-4">
           <CardTitulo titulo="Seu rumo financeiro" sub={`Cenário ${moderado?.nome.toLowerCase() ?? '—'} · valores de hoje`} acao={<a href={link('financas', 'liberdade')} className="text-sm font-bold text-brand">Ver</a>} />
           <div className="flex flex-wrap items-end gap-x-8 gap-y-3">

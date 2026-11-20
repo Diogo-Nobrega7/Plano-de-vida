@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { Flame, LogOut, Monitor, Moon, Sun, User } from 'lucide-react'
+import { Flame, LogOut, Monitor, Moon, Sparkles, Sun, User } from 'lucide-react'
 import { SECOES, link, type Rota } from '@/app/routes'
 import { Marca } from './Marca'
 import { cx } from '@/components/ui'
@@ -48,7 +48,7 @@ function MenuUsuario() {
 
 export function AppShell({ rota, children }: { rota: Rota; children: ReactNode }) {
   const secao = SECOES.find((s) => s.id === rota.secao)
-  const { seq } = useProgresso()
+  const { seq, nivel } = useProgresso()
   return (
     <div className="min-h-screen pb-24 md:pb-0">
       <header className="sticky top-0 z-20 border-b border-line bg-surface/85 backdrop-blur-xl">
@@ -63,7 +63,11 @@ export function AppShell({ rota, children }: { rota: Rota; children: ReactNode }
               </a>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto flex items-center gap-2">
+            {modoLocal && <span title="Os dados ficam só neste navegador. Para salvar online, configure o Supabase." className="hidden sm:inline-flex rounded-full border border-line px-2.5 py-1 text-xs font-bold text-muted">Modo local</span>}
+            <span title={`Nível ${nivel.nivel} · ${nivel.titulo}`} className="hidden sm:flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-sm font-extrabold text-brand num">
+              <Sparkles size={15} strokeWidth={2.6} />Nv {nivel.nivel}
+            </span>
             <span title="Dias seguidos estudando" className={cx('flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-extrabold num', seq.atual ? 'bg-fire-soft text-fire' : 'bg-sunken text-muted')}>
               <Flame size={16} strokeWidth={2.6} />{seq.atual}
             </span>
@@ -85,13 +89,7 @@ export function AppShell({ rota, children }: { rota: Rota; children: ReactNode }
         )}
       </header>
 
-      {modoLocal && (
-        <div className="bg-brand-soft text-brand text-center text-[13px] font-semibold px-4 py-2">
-          Modo local: os dados ficam só neste navegador. Para salvar online, configure o Supabase (docs/PUBLICAR.md).
-        </div>
-      )}
-
-      <main key={rota.secao + rota.aba} className="entrar mx-auto max-w-[1240px] px-4 md:px-6 py-6 md:py-8">{children}</main>
+      <main key={rota.secao + rota.aba} className="entrar mx-auto max-w-[1240px] px-4 md:px-6 py-6 md:py-9">{children}</main>
 
       <nav aria-label="Principal" className="md:hidden fixed bottom-0 inset-x-0 z-20 border-t border-line bg-surface/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)]">
         <div className="grid grid-cols-5">

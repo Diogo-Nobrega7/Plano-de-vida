@@ -43,7 +43,7 @@ export function LinhaPage() {
           ))}
         </div>
       </Card>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {c.fases.map((f, k) => {
           const atual = idade >= f.inicio && idade < f.fim
           return (
@@ -61,7 +61,7 @@ export function LinhaPage() {
       </div>
       <Card>
         <CardTitulo titulo="Riscos para revisar todo ano" />
-        <ul className="grid gap-2 md:grid-cols-2 text-sm">
+        <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 text-sm">
           {['Mais de uma tentativa no vestibular atrasa tudo em 1 ano ou mais.', 'Faculdade particular pode custar centenas de milhares de reais.',
             'Gargalo na residência: médicos devem passar de 636 mil (2025) para 1,15 milhão (2035).', 'Mudança de especialidade, doença na família ou crise econômica.'].map((r) => (
             <li key={r} className="rounded-lg bg-fire-soft px-4 py-3">{r}</li>
