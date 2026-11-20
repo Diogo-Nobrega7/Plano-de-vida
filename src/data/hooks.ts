@@ -7,6 +7,7 @@ import { toast } from '@/components/ui/Toast'
    Depois de gravar, só aquela tabela é recarregada e todo mundo que a usa é avisado. */
 interface Entrada { linhas: unknown[]; carregado: boolean; buscando: Promise<void> | null; ouvintes: Set<() => void> }
 const cache = new Map<NomeTabela, Entrada>()
+const avisadas = new Set<NomeTabela>()
 
 function entrada(t: NomeTabela): Entrada {
   if (!cache.has(t)) cache.set(t, { linhas: [], carregado: false, buscando: null, ouvintes: new Set() })
@@ -19,7 +20,14 @@ export function recarregarTabela(t: NomeTabela, depoisDeGravar = false): Promise
   if (e.buscando) return depoisDeGravar ? e.buscando.then(() => recarregarTabela(t)) : e.buscando
   e.buscando = db.listar(t)
     .then((linhas) => { e.linhas = linhas.map((l) => normalizar(t, l)); e.carregado = true })
-    .catch((err) => { e.carregado = true; toast((err as Error).message, 'erro') })
+    .catch((err) => {
+      e.carregado = true
+      const msg = (err as Error).message
+      // Tabela nova que ainda não existe no Supabase: avisa uma vez e segue com a lista vazia.
+      if (/could not find the table|does not exist|schema cache/i.test(msg)) {
+        if (!avisadas.has(t)) { avisadas.add(t); toast(`Falta criar a tabela "${t}" no Supabase: rode a migração mais nova (veja docs/PUBLICAR.md).`, 'erro') }
+      } else toast(msg, 'erro')
+    })
     .finally(() => { e.buscando = null; e.ouvintes.forEach((f) => f()) })
   return e.buscando
 }

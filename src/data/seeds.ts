@@ -91,6 +91,14 @@ const TEMAS_TREINO = ['Desafios para o combate à desinformação nas redes soci
 
 let emAndamento: Promise<void> | null = null
 
+/** Cortes de Medicina, ampla concorrência, SISU 2026 (1ª edição), segundo sites que acompanham o SISU
+ *  (enemhub.com.br, vemmed.com.br). Fontes às vezes divergem: confira no portal oficial e ajuste.
+ *  Pesos começam iguais (1): troque pelos do edital de cada universidade. */
+const FACULDADES: [string, number, string][] = [
+  ['UFRN — Caicó', 788.59, 'enemhub.com.br'], ['UFSM', 805.14, 'vemmed.com.br'], ['UFG — Goiânia', 811.7, 'vemmed.com.br'],
+  ['UFMG', 818.5, 'vemmed.com.br'], ['UFRJ — Rio de Janeiro', 833.86, 'agregadores (outra fonte cita 823,79)'], ['UFU', 842.57, 'agregadores'],
+]
+
 /** Preenche o que estiver vazio. Seguro para rodar várias vezes: chamadas ao mesmo tempo
  *  esperam a mesma execução (evita criar as matérias em dobro). */
 export function garantirDadosIniciais(): Promise<void> {
@@ -109,6 +117,10 @@ async function semear(): Promise<void> {
   }
   if (await vazia('decisoes')) await db.inserir('decisoes', [{ data: '2026-11-11', decisao: 'Plano v1: Medicina (Dermatologia ou Neurologia + clínica) como carreira principal em análise.', premissas: 'Meta de R$ 50 mil/mês; liberdade = R$ 15 mi; rendimento real de 5% a.a.; cenário moderado chega à meta por volta dos 56. Ainda será comparada com alternativas.', revisar_em: '2027-11-11', resultado: null }])
   if (await vazia('temas')) await db.inserir('temas', [...TEMAS_ENEM.map(([ano, tema]) => ({ tema, ano, origem: 'ENEM' as const })), ...TEMAS_TREINO.map((tema) => ({ tema, ano: null, origem: 'Treino' as const }))])
+  // Tabelas da migração 0002: se ainda não existirem no Supabase, só pula (o app avisa).
+  try {
+    if (await vazia('faculdades')) await db.inserir('faculdades', FACULDADES.map(([nome, nota_corte, fonte], i) => ({ nome, curso: 'Medicina', nota_corte, ano_ref: 2026, pesos: { lc: 1, ch: 1, cn: 1, mt: 1, redacao: 1 }, fonte, prioridade: i })))
+  } catch { /* migração 0002 pendente */ }
   if (await vazia('materias')) {
     let ordem = 0
     for (const [area, materias] of Object.entries(CONTEUDOS)) {

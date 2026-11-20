@@ -6,8 +6,8 @@ export interface Secao { id: string; nome: string; icone: LucideIcon; abas: { id
 export const SECOES: Secao[] = [
   { id: 'hoje', nome: 'Hoje', icone: Home, abas: [] },
   { id: 'estudos', nome: 'Estudos', icone: BookOpen, abas: [
-    { id: 'disciplinas', nome: 'Disciplinas' }, { id: 'aulas', nome: 'Aulas' }, { id: 'foco', nome: 'Foco' },
-    { id: 'revisoes', nome: 'Revisões' }, { id: 'simulados', nome: 'Simulados' }] },
+    { id: 'disciplinas', nome: 'Disciplinas' }, { id: 'cronograma', nome: 'Cronograma' }, { id: 'aulas', nome: 'Aulas' }, { id: 'foco', nome: 'Foco' },
+    { id: 'revisoes', nome: 'Revisões' }, { id: 'simulados', nome: 'Simulados' }, { id: 'sisu', nome: 'SISU' }] },
   { id: 'redacao', nome: 'Redação', icone: PenLine, abas: [
     { id: 'escrever', nome: 'Escrever' }, { id: 'minhas', nome: 'Minhas redações' }, { id: 'temas', nome: 'Temas' }, { id: 'guia', nome: 'Guia nota 1000' }] },
   { id: 'financas', nome: 'Finanças', icone: Wallet, abas: [

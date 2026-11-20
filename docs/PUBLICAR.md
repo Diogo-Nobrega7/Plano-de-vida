@@ -16,6 +16,8 @@ Pode usar o projeto que você já criou (`plano-de-vida`).
 2. Abra o arquivo `supabase/migrations/0001_inicial.sql` deste repositório, copie **tudo**, cole e clique **Run**.
    Deve aparecer "Success". (Ele apaga as tabelas da versão antiga em Streamlit, que só tinham dados de teste,
    e cria as novas.)
+   Depois, faça o mesmo com `supabase/migrations/0002_cronograma_sisu.sql` (cronograma e faculdades do SISU).
+   **Já tinha rodado a 0001 antes?** Rode só a 0002. Cada arquivo roda uma vez só, na ordem.
 3. **Bloquear cadastro aberto:** **Authentication → Sign In / Providers → Email** → desligue
    **Allow new users to sign up** → Save. Assim ninguém cria conta sozinho.
 4. **Criar sua conta:** **Authentication → Users → Add user → Create new user**. Coloque seu e-mail e uma senha
@@ -26,6 +28,11 @@ Pode usar o projeto que você já criou (`plano-de-vida`).
 
    Essas duas podem ficar no site sem problema: quem protege os dados é o login + RLS.
    **Nunca** use a `service_role`/`secret` no site.
+
+6. **Link de "Esqueci minha senha":** **Authentication → URL Configuration**:
+   - **Site URL:** `https://diogo-nobrega7.github.io/Plano-de-vida/`
+   - **Redirect URLs → Add URL:** `https://diogo-nobrega7.github.io/Plano-de-vida/**`
+   Sem isso, o link do e-mail de recuperação não volta para o site.
 
 ## Parte 2 — Site (GitHub Pages)
 

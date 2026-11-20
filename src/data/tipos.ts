@@ -28,7 +28,10 @@ export interface Decisao extends Base { data: string; decisao: string; premissas
 export interface Materia extends Base { area: string; nome: string; ordem: number }
 export interface Conteudo extends Base { materia_id: string; nome: string; frequencia: 'Alta' | 'Média' | 'Baixa'; status: string; revisado_em: string | null; ordem: number }
 export interface Aula extends Base { materia_id: string; conteudo: string | null; titulo: string; url: string; canal: string | null; assistida: boolean; assistida_em: string | null; notas: string | null }
-export interface Sessao extends Base { data: string; materia_id: string | null; minutos: number; questoes: number | null; acertos: number | null; observacoes: string | null }
+export interface Sessao extends Base { data: string; materia_id: string | null; minutos: number; questoes: number | null; acertos: number | null; observacoes: string | null; cronograma_id?: string | null }
+/** Bloco do cronograma semanal. dia: 0 = segunda … 6 = domingo; inicio: 'HH:MM'. */
+export interface Bloco extends Base { dia: number; inicio: string; minutos: number; materia_id: string | null; titulo: string | null }
+export interface Faculdade extends Base { nome: string; curso: string; nota_corte: number | null; ano_ref: number | null; pesos: Record<'lc' | 'ch' | 'cn' | 'mt' | 'redacao', number>; fonte: string | null; prioridade: number }
 export interface Simulado extends Base { data: string; nome: string; lc: number | null; ch: number | null; cn: number | null; mt: number | null; redacao: number | null }
 export interface Tema extends Base { tema: string; ano: number | null; origem: 'ENEM' | 'Treino' }
 export interface Redacao extends Base { data: string; tema: string; texto: string; c1: number | null; c2: number | null; c3: number | null; c4: number | null; c5: number | null; corretor: string | null; comentarios: string | null }
@@ -37,7 +40,7 @@ export interface Revisao extends Base { tipo: 'erro' | 'cartao'; materia_id: str
 export interface Tabelas {
   perfil: Perfil; lancamentos: Lancamento; investimentos: Investimento; cenarios: Cenario; metas: Meta; carreiras: Carreira
   decisoes: Decisao; materias: Materia; conteudos: Conteudo; aulas: Aula; sessoes: Sessao; simulados: Simulado
-  temas: Tema; redacoes: Redacao; revisoes: Revisao
+  temas: Tema; redacoes: Redacao; revisoes: Revisao; cronograma: Bloco; faculdades: Faculdade
 }
 export type NomeTabela = keyof Tabelas
 export type Novo<T> = Omit<T, 'id' | 'criado_em'>

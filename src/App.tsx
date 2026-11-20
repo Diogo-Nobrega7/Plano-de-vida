@@ -8,12 +8,14 @@ import { PerfilProvider, usePerfil } from '@/app/PerfilContext'
 import { useTema } from '@/app/useTema'
 import { AppShell } from '@/components/layout/AppShell'
 import { Marca } from '@/components/layout/Marca'
-import { Camada, Carregando, Toaster } from '@/components/ui'
-import { LoginPage } from '@/features/auth/LoginPage'
+import { Camada, Carregando, Toaster, toast } from '@/components/ui'
+import { LoginPage, NovaSenhaPage } from '@/features/auth/LoginPage'
 import { Onboarding } from '@/features/perfil/Onboarding'
 import { HojePage } from '@/features/hoje/HojePage'
 
 // Telas carregadas sob demanda: o primeiro acesso baixa só o necessário.
+const CronogramaPage = lazy(() => import('@/features/estudos/CronogramaPage').then((m) => ({ default: m.CronogramaPage })))
+const SisuPage = lazy(() => import('@/features/estudos/SisuPage').then((m) => ({ default: m.SisuPage })))
 const PerfilPage = lazy(() => import('@/features/perfil/PerfilPage').then((m) => ({ default: m.PerfilPage })))
 const DisciplinasPage = lazy(() => import('@/features/estudos/DisciplinasPage').then((m) => ({ default: m.DisciplinasPage })))
 const AulasPage = lazy(() => import('@/features/estudos/AulasPage').then((m) => ({ default: m.AulasPage })))
@@ -34,7 +36,7 @@ const DiarioPage = lazy(() => import('@/features/carreira/DiarioPage').then((m) 
 /** Cada tela, por "secao/aba". Para criar uma tela nova: registre em app/routes.ts e aqui. */
 const PAGINAS: Record<string, ComponentType<{ aba: string }>> = {
   'hoje/': HojePage, 'perfil/': PerfilPage,
-  'estudos/disciplinas': DisciplinasPage, 'estudos/aulas': AulasPage, 'estudos/foco': FocoPage,
+  'estudos/disciplinas': DisciplinasPage, 'estudos/cronograma': CronogramaPage, 'estudos/sisu': SisuPage, 'estudos/aulas': AulasPage, 'estudos/foco': FocoPage,
   'estudos/revisoes': RevisoesPage, 'estudos/simulados': SimuladosPage,
   'redacao/escrever': RedacaoPage, 'redacao/minhas': RedacaoPage, 'redacao/temas': RedacaoPage, 'redacao/guia': RedacaoPage,
   'financas/resumo': ResumoPage, 'financas/liberdade': LiberdadePage, 'financas/investir': InvestirPage,
@@ -62,12 +64,14 @@ export function App() {
   useTema()
   const [sessao, setSessao] = useState<Session | null | undefined>(supabase ? undefined : null)
   const [pronto, setPronto] = useState(false)
+  const [recuperando, setRecuperando] = useState(false)
 
   useEffect(() => {
     if (!supabase) return
     supabase.auth.getSession().then(({ data }) => setSessao(data.session))
     const { data } = supabase.auth.onAuthStateChange((evento, s) => {
       if (evento === 'SIGNED_OUT') limparCache()
+      if (evento === 'PASSWORD_RECOVERY') setRecuperando(true)
       setSessao(s)
     })
     return () => data.subscription.unsubscribe()
@@ -80,6 +84,7 @@ export function App() {
   }, [logado])
 
   if (sessao === undefined) return <Abertura />
+  if (recuperando) return <><NovaSenhaPage onPronto={() => { setRecuperando(false); history.replaceState(null, '', location.pathname); toast('Senha alterada!') }} /><Toaster /></>
   if (!logado) return <><LoginPage /><Toaster /></>
   if (!pronto) return <Abertura />
   return <PerfilProvider><Telas /><Toaster /></PerfilProvider>

@@ -94,6 +94,8 @@ const NUMERICOS: Partial<Record<NomeTabela, string[]>> = {
   redacoes: ['c1', 'c2', 'c3', 'c4', 'c5'],
   revisoes: ['caixa', 'feitas'],
   temas: ['ano'],
+  cronograma: ['dia', 'minutos'],
+  faculdades: ['nota_corte', 'ano_ref', 'prioridade'],
 }
 
 export function normalizar<T>(t: NomeTabela, linha: T): T {

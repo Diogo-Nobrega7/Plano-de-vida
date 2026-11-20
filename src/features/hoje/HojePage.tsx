@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ArrowRight, BarChart3, BookMarked, Check, Circle, Flame, PenLine, RotateCcw, Target, Timer, Trophy, Zap } from 'lucide-react'
+import { ArrowRight, BarChart3, BookMarked, CalendarDays, Check, Circle, Flame, PenLine, RotateCcw, Target, Timer, Trophy, Zap } from 'lucide-react'
 import { Anel, Badge, Card, CardTitulo, Carregando, Progress, cx } from '@/components/ui'
 import { usePerfil } from '@/app/PerfilContext'
 import { link } from '@/app/routes'
@@ -10,6 +10,7 @@ import { dataBR, brlCurto, minutos, numero } from '@/lib/format'
 import { idadeQueAtinge, patrimonioNecessario, simularPatrimonio } from '@/lib/financas'
 import { situacaoMeta } from '@/lib/carreira'
 import { vencida } from '@/lib/revisao'
+import { diaDaSemana } from '@/lib/cronograma'
 
 function idade(nasc: string | null, hoje: string): number {
   if (!nasc) return 16
@@ -23,6 +24,7 @@ export function HojePage() {
   const metas = useTabela('metas', [{ coluna: 'prazo' }])
   const cenarios = useTabela('cenarios', [{ coluna: 'ordem' }])
   const investimentos = useTabela('investimentos')
+  const cronograma = useTabela('cronograma', [{ coluna: 'inicio' }])
 
   const nomeMateria = useMemo(() => new Map(materias.dados.map((m) => [m.id, m.nome])), [materias.dados])
   const hoje = p.hoje
@@ -32,8 +34,14 @@ export function HojePage() {
   const redacaoSemana = p.redacoes.some((r) => r.data >= somarDias(hoje, -6))
   const estudouHoje = p.seq.estudouHoje
 
+  // Se há cronograma para hoje, ele vira a 1ª tarefa; senão, uma sessão de foco livre.
+  const blocosHoje = cronograma.dados.filter((b) => b.dia === diaDaSemana(hoje))
+  const blocosFeitos = blocosHoje.filter((b) => p.sessoes.some((s) => s.cronograma_id === b.id && s.data === hoje)).length
+  const proximoBloco = blocosHoje.find((b) => !p.sessoes.some((s) => s.cronograma_id === b.id && s.data === hoje))
   const tarefas = [
-    { feito: estudouHoje, texto: 'Fazer uma sessão de foco', detalhe: 'Pomodoro de 25 min', href: link('estudos', 'foco'), icone: <Timer size={16} /> },
+    blocosHoje.length
+      ? { feito: blocosFeitos === blocosHoje.length, texto: `Cronograma: ${blocosFeitos} de ${blocosHoje.length} blocos`, detalhe: proximoBloco ? `Próximo às ${proximoBloco.inicio}${proximoBloco.materia_id && nomeMateria.get(proximoBloco.materia_id) ? ` · ${nomeMateria.get(proximoBloco.materia_id)}` : ''}` : 'Tudo concluído', href: link('estudos', 'cronograma'), icone: <CalendarDays size={16} /> }
+      : { feito: estudouHoje, texto: 'Fazer uma sessão de foco', detalhe: 'Pomodoro de 25 min', href: link('estudos', 'foco'), icone: <Timer size={16} /> },
     vencidas.length
       ? { feito: false, texto: `Revisar ${vencidas.length} ${vencidas.length === 1 ? 'cartão vencido' : 'cartões vencidos'}`, detalhe: 'Erros e flashcards', href: link('estudos', 'revisoes'), icone: <RotateCcw size={16} /> }
       : { feito: p.revisoes.length > 0, texto: 'Revisões em dia', detalhe: 'Cadastre os erros das questões', href: link('estudos', 'revisoes'), icone: <RotateCcw size={16} /> },

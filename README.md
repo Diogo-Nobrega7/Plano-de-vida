@@ -23,7 +23,7 @@ Para usar o Supabase localmente: copie `.env.example` para `.env.local` e preenc
 | Seção | Abas |
 |---|---|
 | **Hoje** | saudação, dias para o ENEM, plano do dia, nível/XP, sequência 🔥, conquistas, missões, questões, revisões, constância (12 semanas), rumo financeiro, metas |
-| **Estudos** | Disciplinas (checklist do ENEM por frequência) · Aulas (player + Modo Foco + Pomodoro) · Foco (cronômetro e sessões) · Revisões (erros e flashcards com revisão espaçada) · Simulados |
+| **Estudos** | Disciplinas (checklist do ENEM por frequência) · Cronograma (semana em blocos, sugestão automática) · Aulas (player + Modo Foco + Pomodoro) · Foco (cronômetro e sessões) · Revisões (erros e flashcards com revisão espaçada) · Simulados · SISU (faculdades-alvo, pesos e nota de corte) |
 | **Redação** | Escrever (pré-análise + correção C1–C5 da Cartilha 2026 + pedido de correção para o Claude) · Minhas redações · Temas · Guia nota 1000 |
 | **Finanças** | Resumo (lançamentos e investimentos) · Liberdade financeira (3 cenários) · Investimentos (simulador com juros e IR) · Salário e impostos 2026 · Orçamento familiar |
 | **Carreira** | Linha do tempo · Metas · Comparador de carreiras · Diário de decisões |
