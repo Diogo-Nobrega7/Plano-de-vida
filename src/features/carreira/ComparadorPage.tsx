@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Plus, Trash2, Trophy } from 'lucide-react'
 import { Badge, Button, Cabecalho, Card, CardTitulo, Input, cx } from '@/components/ui'
-import { useTabela } from '@/data/hooks'
+import { useAdiado, useTabela } from '@/data/hooks'
 import { usePerfil } from '@/app/PerfilContext'
 import { pontuacao } from '@/lib/carreira'
 import { numero } from '@/lib/format'
@@ -10,10 +10,13 @@ export function ComparadorPage() {
   const { perfil, salvarPerfil } = usePerfil()
   const carreiras = useTabela('carreiras', [{ coluna: 'criado_em' }])
   const [nova, setNova] = useState('')
-  const crit = perfil.criterios
+  // Pesos mudam na hora na tela e são gravados só quando você para de arrastar.
+  const [crit, setCrit] = useState(perfil.criterios)
+  useEffect(() => setCrit(perfil.criterios), [perfil.criterios])
+  const gravarPesos = useAdiado((c: typeof crit) => salvarPerfil({ criterios: c }))
   const ranking = useMemo(() => carreiras.dados.map((c) => ({ c, p: pontuacao(c.notas, crit) })).sort((a, b) => b.p - a.p), [carreiras.dados, crit])
 
-  const setPeso = (nome: string, peso: number) => salvarPerfil({ criterios: crit.map((c) => (c.nome === nome ? { ...c, peso } : c)) })
+  const setPeso = (nome: string, peso: number) => { const c = crit.map((x) => (x.nome === nome ? { ...x, peso } : x)); setCrit(c); gravarPesos(c) }
   const setNota = (id: string, nome: string, nota: number) => { const c = carreiras.dados.find((x) => x.id === id)!; carreiras.atualizar(id, { notas: { ...c.notas, [nome]: nota } }) }
 
   return (

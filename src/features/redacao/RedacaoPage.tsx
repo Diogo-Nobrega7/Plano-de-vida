@@ -40,6 +40,7 @@ function Escrever() {
   const [notas, setNotas] = useState<Notas>({ c1: 120, c2: 120, c3: 120, c4: 120, c5: 120 })
   const [corretor, setCorretor] = useState<'Eu' | 'IA' | 'Professor'>('Eu')
   const [comentarios, setComentarios] = useState('')
+  const [corrigir, setCorrigir] = useState(true)
 
   useEffect(() => { localStorage.setItem('rumo:rascunho', texto) }, [texto])
   useEffect(() => { if (!tema && temas.dados[0]) setTema(temas.dados.find((t) => t.ano === 2026)?.tema ?? temas.dados[0].tema) }, [temas.dados, tema])
@@ -49,8 +50,11 @@ function Escrever() {
 
   async function salvar() {
     if (!texto.trim()) return toast('Escreva a redação antes de salvar.', 'erro')
-    const ok = await redacoes.inserir({ data: hojeISO(), tema, texto, ...notas, corretor, comentarios: comentarios || null }, `Redação salva · ${total} pontos · +60 XP`)
-    if (ok) { setTexto(''); setComentarios(''); location.hash = link('redacao', 'minhas') }
+    // Sem correção, as notas ficam vazias (nada de nota inventada); dá para corrigir depois em "Minhas redações".
+    const n = corrigir ? notas : { c1: null, c2: null, c3: null, c4: null, c5: null }
+    const ok = await redacoes.inserir({ data: hojeISO(), tema, texto, ...n, corretor: corrigir ? corretor : null, comentarios: comentarios || null },
+      corrigir ? `Redação salva · ${total} pontos · +60 XP` : 'Redação salva. Corrija quando puder.')
+    if (ok) { setTexto(''); setComentarios(''); setNotas({ c1: 120, c2: 120, c3: 120, c4: 120, c5: 120 }); location.hash = link('redacao', 'minhas') }
   }
 
   return (
@@ -89,11 +93,17 @@ function Escrever() {
 
       <div className="flex flex-col gap-4 lg:sticky lg:top-32">
         <section className="rounded-xl bg-night text-white p-5 shadow-md">
-          <p className="text-[13px] font-bold text-white/60">Nota da correção</p>
-          <p className="titulo text-6xl num">{total}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-[13px] font-bold text-white/60">Nota da correção</p>
+            <label className="flex items-center gap-2 text-xs font-bold text-white/70 cursor-pointer">
+              <input type="checkbox" checked={corrigir} onChange={(e) => setCorrigir(e.target.checked)} className="h-4 w-4" />Corrigir agora
+            </label>
+          </div>
+          <p className="titulo text-6xl num">{corrigir ? total : '—'}</p>
           <p className="text-xs text-white/50">Cartilha do Participante 2026 (Inep)</p>
         </section>
         <Card className="!p-5">
+          {corrigir ? <>
           <Segmented rotulo="Quem corrigiu" valor={corretor} onChange={setCorretor} opcoes={[{ valor: 'Eu', rotulo: 'Eu' }, { valor: 'IA', rotulo: 'Claude' }, { valor: 'Professor', rotulo: 'Professor' }]} />
           {corretor === 'IA' && (
             <div className="mt-4 rounded-lg bg-brand-soft p-3 text-sm">
@@ -102,8 +112,9 @@ function Escrever() {
             </div>
           )}
           <div className="mt-5"><Correcao notas={notas} onChange={setNotas} /></div>
+          </> : <p className="text-sm text-muted">A redação será salva sem nota. Corrija depois em <b>Minhas redações</b> (sozinho, com o Claude ou com um professor).</p>}
           <Textarea aria-label="Comentários" rows={2} placeholder="Comentários da correção (opcional)" value={comentarios} onChange={(e) => setComentarios(e.target.value)} className="mt-4" />
-          <Button className="w-full mt-4" icone={<Save size={16} />} onClick={salvar}>Salvar redação</Button>
+          <Button className="w-full mt-4" icone={<Save size={16} />} onClick={salvar}>{corrigir ? 'Salvar com a nota' : 'Salvar sem nota'}</Button>
         </Card>
       </div>
     </div>
@@ -152,14 +163,14 @@ function Minhas() {
   )
 }
 
-function ItemRedacao({ r, aberta, alternar, atualizar, remover }: { r: Redacao; aberta: boolean; alternar: () => void; atualizar: (id: string, c: Partial<Redacao>, ok?: string) => Promise<boolean>; remover: (id: string) => Promise<boolean> }) {
+function ItemRedacao({ r, aberta, alternar, atualizar, remover }: { r: Redacao; aberta: boolean; alternar: () => void; atualizar: (id: string, c: Partial<Redacao>, ok?: string) => Promise<boolean>; remover: (id: string, rotulo?: string) => Promise<boolean> }) {
   const [notas, setNotas] = useState<Notas>({ c1: r.c1 ?? 120, c2: r.c2 ?? 120, c3: r.c3 ?? 120, c4: r.c4 ?? 120, c5: r.c5 ?? 120 })
   const total = notaTotal(r)
   return (
     <Card className="!p-0 overflow-hidden">
       <button type="button" onClick={alternar} aria-expanded={aberta} className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-sunken/60">
         <span className={cx('grid h-12 w-14 shrink-0 place-items-center rounded-lg titulo num', total == null ? 'bg-sunken text-muted' : total >= 900 ? 'bg-ok-soft text-ok' : total >= 700 ? 'bg-brand-soft text-brand' : 'bg-fire-soft text-fire')}>{total ?? '—'}</span>
-        <span className="min-w-0 flex-1"><span className="block font-bold truncate">{r.tema}</span><span className="block text-xs text-muted">{dataBR(r.data)} · corrigida por {r.corretor || '—'}</span></span>
+        <span className="min-w-0 flex-1"><span className="block font-bold truncate">{r.tema}</span><span className="block text-xs text-muted">{dataBR(r.data)} · {total == null ? 'sem correção' : `corrigida por ${r.corretor || '—'}`}</span></span>
         <ChevronDown size={18} className={cx('text-muted transition-transform', aberta && 'rotate-180')} />
       </button>
       {aberta && (
@@ -168,8 +179,8 @@ function ItemRedacao({ r, aberta, alternar, atualizar, remover }: { r: Redacao; 
           <div className="flex flex-col gap-3">
             <Correcao notas={notas} onChange={setNotas} />
             <div className="flex gap-2">
-              <Button className="flex-1" onClick={() => atualizar(r.id, notas, 'Notas atualizadas')}>Atualizar notas</Button>
-              <Button variante="perigo" onClick={() => remover(r.id)} icone={<Trash2 size={15} />}>Apagar</Button>
+              <Button className="flex-1" onClick={() => atualizar(r.id, { ...notas, corretor: r.corretor || 'Eu' }, total == null ? 'Redação corrigida · +60 XP' : 'Notas atualizadas')}>{total == null ? 'Salvar correção' : 'Atualizar notas'}</Button>
+              <Button variante="perigo" onClick={() => remover(r.id, 'Redação apagada')} icone={<Trash2 size={15} />}>Apagar</Button>
             </div>
           </div>
         </div>

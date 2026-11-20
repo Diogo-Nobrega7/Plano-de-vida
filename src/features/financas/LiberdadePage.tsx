@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Area, AreaChart, CartesianGrid, Legend, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Plus, Save, Trash2 } from 'lucide-react'
 import { Badge, Button, Cabecalho, Campo, Card, CardTitulo, NumberInput, Segmented, cx } from '@/components/ui'
-import { useTabela } from '@/data/hooks'
+import { useAdiado, useTabela } from '@/data/hooks'
 import { usePerfil } from '@/app/PerfilContext'
 import { diasEntre, hojeISO } from '@/lib/datas'
 import { brl, brlCurto } from '@/lib/format'
@@ -11,7 +11,13 @@ import { idadeQueAtinge, patrimonioNecessario, realParaNominal, simularPatrimoni
 const CORES = ['#94A3B8', '#1D4ED8', '#0EA5E9', '#7C3AED', '#16A34A']
 
 export function LiberdadePage() {
-  const { perfil, salvarPerfil } = usePerfil()
+  const { perfil: salvo, salvarPerfil } = usePerfil()
+  // Premissas: a tela recalcula na hora; o banco grava quando você para de digitar.
+  const [prem, setPrem] = useState({ renda_desejada: salvo.renda_desejada, taxa_saque: salvo.taxa_saque, inflacao: salvo.inflacao })
+  useEffect(() => setPrem({ renda_desejada: salvo.renda_desejada, taxa_saque: salvo.taxa_saque, inflacao: salvo.inflacao }), [salvo.renda_desejada, salvo.taxa_saque, salvo.inflacao])
+  const gravar = useAdiado((p: typeof prem) => salvarPerfil(p), 700)
+  const mudarPrem = (c: Partial<typeof prem>) => { const p = { ...prem, ...c }; setPrem(p); gravar(p) }
+  const perfil = { ...salvo, ...prem }
   const cenarios = useTabela('cenarios', [{ coluna: 'ordem' }])
   const investimentos = useTabela('investimentos')
   const [nominal, setNominal] = useState<'real' | 'nominal'>('real')
@@ -117,9 +123,9 @@ export function LiberdadePage() {
         <Card>
           <CardTitulo titulo="Premissas" />
           <div className="flex flex-col gap-4">
-            <Campo rotulo="Renda mensal desejada">{(id) => <NumberInput id={id} step={1000} value={perfil.renda_desejada} onValor={(v) => salvarPerfil({ renda_desejada: v ?? 0 })} />}</Campo>
-            <Campo rotulo="Taxa de saque (% ao ano)" dica="Quanto do patrimônio você retira por ano. 4% é o padrão.">{(id) => <NumberInput id={id} step={0.5} value={Math.round(perfil.taxa_saque * 1000) / 10} onValor={(v) => v && salvarPerfil({ taxa_saque: v / 100 })} />}</Campo>
-            <Campo rotulo="Inflação (% ao ano)" dica="Só para a visão com inflação.">{(id) => <NumberInput id={id} step={0.5} value={Math.round(perfil.inflacao * 1000) / 10} onValor={(v) => salvarPerfil({ inflacao: (v ?? 0) / 100 })} />}</Campo>
+            <Campo rotulo="Renda mensal desejada">{(id) => <NumberInput id={id} step={1000} value={perfil.renda_desejada} onValor={(v) => mudarPrem({ renda_desejada: v ?? 0 })} />}</Campo>
+            <Campo rotulo="Taxa de saque (% ao ano)" dica="Quanto do patrimônio você retira por ano. 4% é o padrão.">{(id) => <NumberInput id={id} step={0.5} value={Math.round(perfil.taxa_saque * 1000) / 10} onValor={(v) => v && v > 0 && mudarPrem({ taxa_saque: v / 100 })} />}</Campo>
+            <Campo rotulo="Inflação (% ao ano)" dica="Só para a visão com inflação.">{(id) => <NumberInput id={id} step={0.5} value={Math.round(perfil.inflacao * 1000) / 10} onValor={(v) => mudarPrem({ inflacao: (v ?? 0) / 100 })} />}</Campo>
             <Badge tom="brand">Patrimônio inicial = seus investimentos</Badge>
           </div>
         </Card>

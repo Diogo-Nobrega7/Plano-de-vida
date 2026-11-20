@@ -22,7 +22,14 @@ export function useProgresso() {
       redacoes: redacoes.dados.filter((r) => r.c1 != null).length, simulados: simulados.dados.length,
       revisoesFeitas: revisoes.dados.reduce((s, r) => s + r.feitas, 0), conteudosDominados: conteudos.dados.filter((c) => c.status === 'dominado').length,
     }
-    const datas = [...new Set(ses.map((s) => s.data))]
+    // Dia estudado = qualquer atividade: sessão, aula assistida, revisão, redação ou simulado.
+    const datas = [...new Set([
+      ...ses.map((s) => s.data),
+      ...aulas.dados.map((a) => a.assistida_em).filter(Boolean) as string[],
+      ...revisoes.dados.map((r) => r.ultima).filter(Boolean) as string[],
+      ...redacoes.dados.map((r) => r.data),
+      ...simulados.dados.map((s) => s.data),
+    ])]
     const seq = sequencia(datas, hoje)
     const xp = xpTotal(atividade)
     const totalQuestoes = ses.reduce((s, x) => s + (x.questoes ?? 0), 0)

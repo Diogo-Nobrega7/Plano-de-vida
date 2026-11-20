@@ -12,7 +12,7 @@ export interface Banco {
   remover(t: NomeTabela, ids: string[]): Promise<void>
 }
 
-function ordenar<T>(linhas: T[], ordem: Ordem[] = []): T[] {
+export function ordenar<T>(linhas: T[], ordem: Ordem[] = []): T[] {
   return [...linhas].sort((a, b) => {
     for (const o of ordem) {
       const va = (a as Record<string, unknown>)[o.coluna] as string | number | null
@@ -82,13 +82,24 @@ export const bancoSupabase: Banco = {
 
 export const db: Banco = supabase ? bancoSupabase : bancoLocal
 
-/* Avisos de mudança: quando uma tabela muda, as telas que a usam recarregam. */
-const ouvintes = new Map<NomeTabela, Set<() => void>>()
-export function ouvir(t: NomeTabela, fn: () => void) {
-  if (!ouvintes.has(t)) ouvintes.set(t, new Set())
-  ouvintes.get(t)!.add(fn)
-  return () => { ouvintes.get(t)!.delete(fn) }
+/* O Postgres pode devolver colunas numeric como texto ("50000.00"). Aqui viram número,
+   para os cálculos e a formatação nunca receberem texto. */
+const NUMERICOS: Partial<Record<NomeTabela, string[]>> = {
+  perfil: ['renda_desejada', 'taxa_saque', 'inflacao'],
+  lancamentos: ['valor'],
+  investimentos: ['valor_aplicado', 'saldo_atual'],
+  cenarios: ['taxa_real', 'ordem'],
+  simulados: ['lc', 'ch', 'cn', 'mt', 'redacao'],
+  sessoes: ['minutos', 'questoes', 'acertos'],
+  redacoes: ['c1', 'c2', 'c3', 'c4', 'c5'],
+  revisoes: ['caixa', 'feitas'],
+  temas: ['ano'],
 }
-export function avisar(t: NomeTabela) {
-  ouvintes.get(t)?.forEach((fn) => fn())
+
+export function normalizar<T>(t: NomeTabela, linha: T): T {
+  const cols = NUMERICOS[t]
+  if (!cols) return linha
+  const l = { ...linha } as Record<string, unknown>
+  for (const c of cols) if (l[c] != null && typeof l[c] !== 'number') l[c] = Number(l[c])
+  return l as T
 }

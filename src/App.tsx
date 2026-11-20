@@ -2,6 +2,7 @@ import { useEffect, useState, type ComponentType } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/data/supabase'
 import { garantirDadosIniciais } from '@/data/seeds'
+import { limparCache } from '@/data/hooks'
 import { useRota } from '@/app/useRota'
 import { PerfilProvider, usePerfil } from '@/app/PerfilContext'
 import { useTema } from '@/app/useTema'
@@ -63,7 +64,10 @@ export function App() {
   useEffect(() => {
     if (!supabase) return
     supabase.auth.getSession().then(({ data }) => setSessao(data.session))
-    const { data } = supabase.auth.onAuthStateChange((_e, s) => setSessao(s))
+    const { data } = supabase.auth.onAuthStateChange((evento, s) => {
+      if (evento === 'SIGNED_OUT') limparCache()
+      setSessao(s)
+    })
     return () => data.subscription.unsubscribe()
   }, [])
 

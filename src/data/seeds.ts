@@ -89,8 +89,16 @@ const TEMAS_TREINO = ['Desafios para o combate à desinformação nas redes soci
   'O combate ao racismo ambiental no Brasil', 'Os desafios da evasão escolar no ensino médio', 'Caminhos para ampliar o acesso à leitura no Brasil',
   'O uso excessivo de telas por crianças e adolescentes', 'O enfrentamento das apostas online e seus impactos sociais', 'Desafios para a doação de órgãos no Brasil']
 
-/** Preenche o que estiver vazio. Seguro para rodar várias vezes. */
-export async function garantirDadosIniciais(): Promise<void> {
+let emAndamento: Promise<void> | null = null
+
+/** Preenche o que estiver vazio. Seguro para rodar várias vezes: chamadas ao mesmo tempo
+ *  esperam a mesma execução (evita criar as matérias em dobro). */
+export function garantirDadosIniciais(): Promise<void> {
+  if (!emAndamento) emAndamento = semear().finally(() => { emAndamento = null })
+  return emAndamento
+}
+
+async function semear(): Promise<void> {
   const vazia = async (t: Parameters<typeof db.listar>[0]) => (await db.listar(t)).length === 0
   if (await vazia('perfil')) await db.inserir('perfil', [PERFIL_INICIAL])
   if (await vazia('cenarios')) await db.inserir('cenarios', CENARIOS)
