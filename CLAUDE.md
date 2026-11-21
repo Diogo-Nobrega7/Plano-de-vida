@@ -19,5 +19,9 @@ Sem `VITE_SUPABASE_*` o app roda em modo local (localStorage), mesma interface (
 - Textos em português, voz ativa, sem jargão. Nada de dado inventado mostrado como real.
 - Dados de mercado (Selic, IR, INSS) são de nov/2026: revisar todo ano em `src/lib/impostos.ts` e `src/lib/investimentos.ts`.
 
+## Commits
+Sempre em nome do Diogo: autor `Diogo Nóbrega <168549527+Diogo-Nobrega7@users.noreply.github.com>`,
+sem linhas de coautoria ou de sessão no fim da mensagem (pedido do dono do repositório).
+
 ## Comandos
 `npm run dev` · `npm test` · `npm run typecheck` · `npm run build`
