@@ -9,17 +9,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: v('bg'), surface: v('surface'), sunken: v('sunken'), line: v('line'),
+        bg: v('bg'), surface: v('surface'), raised: v('raised'), sunken: v('sunken'), line: v('line'), 'line-strong': v('line-strong'),
         ink: v('ink'), muted: v('muted'), faint: v('faint'),
         brand: v('brand'), 'brand-2': v('brand-2'), 'brand-soft': v('brand-soft'), 'brand-ink': v('brand-ink'),
         night: v('night'), fire: v('fire'), 'fire-soft': v('fire-soft'),
         ok: v('ok'), 'ok-soft': v('ok-soft'), warn: v('warn'), bad: v('bad'), 'bad-soft': v('bad-soft'),
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         serif: ['Literata', 'Georgia', 'serif'],
       },
-      borderRadius: { sm: '8px', md: '12px', lg: '16px', xl: '22px', '2xl': '28px' },
+      borderRadius: { sm: '6px', md: '10px', lg: '12px', xl: '16px', '2xl': '22px' },
       boxShadow: { sm: 'var(--shadow-sm)', md: 'var(--shadow-md)', lg: 'var(--shadow-lg)' },
       transitionTimingFunction: { out: 'cubic-bezier(.2,.7,.2,1)' },
     },

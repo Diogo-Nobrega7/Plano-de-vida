@@ -26,24 +26,24 @@ export function ComparadorPage() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px] items-start">
         <Card className="!p-0 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[720px]">
+            <table className="tabela min-w-[720px]">
               <thead>
-                <tr className="bg-sunken/60">
-                  <th className="px-4 py-3 text-left font-bold text-muted">Carreira</th>
-                  {crit.map((c) => <th key={c.nome} className="px-2 py-3 font-bold text-muted text-center" title={c.descricao}>{c.nome}</th>)}
-                  <th className="px-3 py-3 font-bold text-muted text-center">Nota</th><th />
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium text-muted min-w-[220px]">Carreira</th>
+                  {crit.map((c) => <th key={c.nome} className="px-2 py-3 font-medium text-muted text-center" title={c.descricao}>{c.nome}</th>)}
+                  <th className="px-3 py-3 font-medium text-muted text-center">Nota</th><th />
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
                 {carreiras.dados.map((c) => (
                   <tr key={c.id} className="group">
-                    <td className="px-4 py-3"><p className="font-bold">{c.nome}</p>{c.observacoes && <p className="text-xs text-muted max-w-[220px]">{c.observacoes}</p>}</td>
+                    <td className="px-4 py-3 min-w-[220px]"><p className="font-semibold">{c.nome}</p>{c.observacoes && <p className="text-xs text-faint max-w-[260px] line-clamp-2 mt-0.5">{c.observacoes}</p>}</td>
                     {crit.map((k) => (
                       <td key={k.nome} className="px-1 py-2 text-center">
                         <div className="inline-flex rounded-md bg-sunken p-0.5" role="group" aria-label={`${k.nome} em ${c.nome}`}>
                           {[1, 2, 3, 4, 5].map((n) => (
                             <button key={n} type="button" aria-pressed={c.notas[k.nome] === n} onClick={() => setNota(c.id, k.nome, n)}
-                              className={cx('h-7 w-6 rounded-[6px] text-xs font-bold', c.notas[k.nome] === n ? 'bg-brand text-brand-ink' : 'text-muted hover:text-ink')}>{n}</button>
+                              className={cx('h-7 w-6 rounded-[6px] text-xs font-medium', c.notas[k.nome] === n ? 'bg-brand text-brand-ink' : 'text-muted hover:text-ink')}>{n}</button>
                           ))}
                         </div>
                       </td>
@@ -67,7 +67,7 @@ export function ComparadorPage() {
             <ol className="flex flex-col gap-3">
               {ranking.map(({ c, p }, k) => (
                 <li key={c.id} className="flex flex-col gap-1.5">
-                  <div className="flex justify-between text-sm gap-2"><span className="font-bold">{k + 1}. {c.nome}</span><span className="font-extrabold num">{numero(p, 2)}</span></div>
+                  <div className="flex justify-between text-sm gap-2"><span className="font-medium">{k + 1}. {c.nome}</span><span className="font-semibold num">{numero(p, 2)}</span></div>
                   <div className="h-2.5 rounded-full bg-sunken"><div className={cx('h-full rounded-full', k === 0 ? 'bg-brand' : 'bg-brand/45')} style={{ width: `${(p / 5) * 100}%` }} /></div>
                 </li>
               ))}

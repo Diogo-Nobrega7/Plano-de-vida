@@ -10,7 +10,11 @@ Sem `VITE_SUPABASE_*` o app roda em modo local (localStorage), mesma interface (
 - Cálculos só em `src/lib/` como funções puras, sempre com teste (`npm test`).
 - Telas nunca falam com o Supabase direto: usam `useTabela()` (`src/data/hooks.ts`).
 - Banco: toda mudança é uma migração nova numerada; toda tabela tem `user_id default auth.uid()` + RLS "só o dono".
-- Cores só por tokens (`src/index.css`); funciona em claro e escuro.
+- Design: tokens em `src/index.css` (escuro é o tema padrão; claro com a mesma hierarquia), fonte Inter.
+  Componentes em `src/components/ui` (Card, CardTitulo, Kpi, StatRow, Cabecalho, Segmented, Badge, Button, campos, Modal,
+  Grafico). Classes globais: `.card`, `.hero` (painel escuro de destaque nos dois temas), `.tabela`, `.rotulo`, `.titulo`.
+  Layout: barra lateral fixa no desktop (`components/layout/AppShell.tsx`), abas em pílulas + barra inferior no celular,
+  busca rápida Ctrl/⌘+K (`Busca.tsx`). Cores de séries de gráfico: `SERIES` em `Grafico.tsx`.
 - Camadas de tela cheia (modal, onboarding, Modo Foco) usam portal (`Camada`/`Modal`), porque `main` tem animação.
 - Textos em português, voz ativa, sem jargão. Nada de dado inventado mostrado como real.
 - Dados de mercado (Selic, IR, INSS) são de nov/2026: revisar todo ano em `src/lib/impostos.ts` e `src/lib/investimentos.ts`.

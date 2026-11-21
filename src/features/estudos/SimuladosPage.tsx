@@ -8,7 +8,7 @@ import { hojeISO } from '@/lib/datas'
 import { dataBR, dataCurta, numero } from '@/lib/format'
 import { NOTAS, mediaEnem } from '@/lib/enem'
 
-const CORES = ['#1D4ED8', '#0EA5E9', '#16A34A', '#EA580C', '#7C3AED']
+const CORES = ['#5482FF', '#38BDF8', '#34D399', '#FB923C', '#A78BFA']
 
 export function SimuladosPage() {
   const { perfil } = usePerfil()
@@ -62,7 +62,7 @@ export function SimuladosPage() {
                   const nota = ultimo?.[a.chave] == null ? null : Number(ultimo[a.chave]), meta = perfil.metas_nota[a.chave]
                   return (
                     <div key={a.chave} className="flex flex-col gap-1.5">
-                      <div className="flex justify-between text-sm"><span className="font-bold">{a.nome}</span><span className="num text-muted"><b className="text-ink">{nota ?? '—'}</b> / {meta}{nota != null && nota < meta && <span className="text-bad font-bold"> · faltam {numero(meta - nota)}</span>}</span></div>
+                      <div className="flex justify-between text-sm"><span className="font-medium">{a.nome}</span><span className="num text-muted"><b className="text-ink">{nota ?? '—'}</b> / {meta}{nota != null && nota < meta && <span className="text-bad font-medium"> · faltam {numero(meta - nota)}</span>}</span></div>
                       <div className="h-2 w-full rounded-full bg-sunken overflow-hidden"><div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${Math.min(1, (nota ?? 0) / meta) * 100}%`, background: nota != null && nota >= meta ? 'rgb(var(--ok))' : CORES[i] }} /></div>
                     </div>
                   )
@@ -73,15 +73,15 @@ export function SimuladosPage() {
           <Card>
             <CardTitulo titulo="Todos os simulados" />
             <div className="overflow-x-auto -mx-2">
-              <table className="w-full text-sm">
-                <thead><tr className="text-left text-muted">{['Data', 'Simulado', ...NOTAS.map((a) => a.nome), 'Média', ''].map((h) => <th key={h} className="px-2 py-2 font-bold whitespace-nowrap">{h}</th>)}</tr></thead>
+              <table className="tabela">
+                <thead><tr className="text-left text-muted">{['Data', 'Simulado', ...NOTAS.map((a) => a.nome), 'Média', ''].map((h) => <th key={h} className="px-2 py-2 font-medium whitespace-nowrap">{h}</th>)}</tr></thead>
                 <tbody className="divide-y divide-line">
                   {[...simulados.dados].reverse().map((s) => (
                     <tr key={s.id} className="group">
                       <td className="px-2 py-3 whitespace-nowrap text-muted">{dataBR(s.data)}</td>
                       <td className="px-2 py-3 font-semibold">{s.nome}</td>
                       {NOTAS.map((a) => <td key={a.chave} className="px-2 py-3 num">{s[a.chave] ?? '—'}</td>)}
-                      <td className="px-2 py-3 num font-bold">{(() => { const m = mediaEnem(s as never); return m == null ? '—' : numero(m) })()}</td>
+                      <td className="px-2 py-3 num font-medium">{(() => { const m = mediaEnem(s as never); return m == null ? '—' : numero(m) })()}</td>
                       <td className="px-2 py-3 text-right"><button type="button" aria-label="Apagar" onClick={() => simulados.remover(s.id)} className="text-faint hover:text-bad"><Trash2 size={15} /></button></td>
                     </tr>
                   ))}

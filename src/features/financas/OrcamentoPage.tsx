@@ -5,7 +5,7 @@ import { PERFIS, estimar, regra503020, type Perfil } from '@/lib/orcamento'
 import { salarioLiquido } from '@/lib/impostos'
 import { brl } from '@/lib/format'
 
-const CORES = ['#1D4ED8', '#3B82F6', '#0EA5E9', '#06B6D4', '#14B8A6', '#16A34A', '#84CC16', '#EAB308', '#F59E0B', '#EA580C', '#DC2626', '#DB2777', '#7C3AED']
+const CORES = ['#5482FF', '#3B82F6', '#38BDF8', '#06B6D4', '#14B8A6', '#34D399', '#84CC16', '#EAB308', '#F59E0B', '#FB923C', '#F87171', '#F472B6', '#A78BFA']
 
 export function OrcamentoPage() {
   const [base, setBase] = useState<'liquida' | 'bruto'>('liquida')
@@ -63,7 +63,7 @@ export function OrcamentoPage() {
           </div>
           <div className="mt-2 grid grid-cols-3 gap-2 text-center">
             {[['Necessidades', r.necessidades, '50%'], ['Desejos', r.desejos, '30%'], ['Investir', r.investir, '20%']].map(([n, v, p]) => (
-              <div key={n as string} className="rounded-lg bg-sunken p-3"><p className="text-xs font-bold text-muted">{n} · {p}</p><p className="font-extrabold num text-sm">{brl(v as number)}</p></div>
+              <div key={n as string} className="rounded-lg bg-sunken p-3"><p className="text-xs font-medium text-muted">{n} · {p}</p><p className="font-semibold num text-sm">{brl(v as number)}</p></div>
             ))}
           </div>
         </Card>

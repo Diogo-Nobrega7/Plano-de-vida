@@ -72,7 +72,7 @@ export function LoginPage() {
         <Button type="submit" disabled={enviando} icone={modo === 'entrar' ? <Lock size={16} /> : <KeyRound size={16} />}>
           {enviando ? 'Aguarde…' : modo === 'entrar' ? 'Entrar' : 'Enviar link'}
         </Button>
-        <button type="button" onClick={() => { setModo(modo === 'entrar' ? 'esqueci' : 'entrar'); setErro('') }} className="text-sm font-bold text-brand self-center">
+        <button type="button" onClick={() => { setModo(modo === 'entrar' ? 'esqueci' : 'entrar'); setErro('') }} className="text-sm font-medium text-brand self-center">
           {modo === 'entrar' ? 'Esqueci minha senha' : 'Voltar para entrar'}
         </button>
       </form>

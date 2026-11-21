@@ -2,13 +2,13 @@ import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTML
 import { useId } from 'react'
 import { cx } from './cx'
 
-const base = 'w-full rounded-md border border-line bg-surface px-3 text-[15px] text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition'
+const base = 'w-full rounded-md border border-line bg-sunken/60 px-3 text-[14px] text-ink placeholder:text-faint shadow-[0_1px_0_rgb(0_0_0/.02)_inset] transition-[border-color,box-shadow,background-color] hover:border-line-strong focus:outline-none focus:bg-surface focus:border-brand focus:ring-[3px] focus:ring-brand/20'
 
 export function Campo({ rotulo, dica, children, className }: { rotulo: string; dica?: ReactNode; children: (id: string) => ReactNode; className?: string }) {
   const id = useId()
   return (
     <div className={cx('flex flex-col gap-1.5 min-w-0', className)}>
-      <label htmlFor={id} className="text-[13px] font-bold text-muted">{rotulo}</label>
+      <label htmlFor={id} className="text-[12.5px] font-medium text-muted">{rotulo}</label>
       {children(id)}
       {dica && <span className="text-xs text-faint">{dica}</span>}
     </div>
@@ -16,10 +16,10 @@ export function Campo({ rotulo, dica, children, className }: { rotulo: string; d
 }
 
 export function Input({ className, ...p }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...p} className={cx(base, 'h-11', className)} />
+  return <input {...p} className={cx(base, 'h-10', className)} />
 }
 export function Select({ className, children, ...p }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...p} className={cx(base, 'h-11 pr-8', className)}>{children}</select>
+  return <select {...p} className={cx(base, 'h-10 pr-8 cursor-pointer', className)}>{children}</select>
 }
 export function Textarea({ className, ...p }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return <textarea {...p} className={cx(base, 'py-2.5 leading-relaxed', className)} />

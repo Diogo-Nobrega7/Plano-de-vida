@@ -43,7 +43,7 @@ export function SisuPage() {
 
       <section className="hero rounded-2xl p-6 md:p-8 text-white grid gap-6 md:grid-cols-[1fr_auto] items-center">
         <div>
-          <p className="text-[13px] font-bold text-white/70">{ref ? `${base === 'ultimo' ? 'Último' : 'Melhor'} simulado completo · ${ref.nome} (${dataBR(ref.data)})` : 'Nenhum simulado completo ainda'}</p>
+          <p className="text-[13px] font-medium text-white/70">{ref ? `${base === 'ultimo' ? 'Último' : 'Melhor'} simulado completo · ${ref.nome} (${dataBR(ref.data)})` : 'Nenhum simulado completo ainda'}</p>
           <p className="titulo text-5xl mt-1 num">{ref ? numero(mediaEnem(ref as never)!, 1) : '—'}<span className="text-lg font-semibold text-white/70"> média simples</span></p>
           <p className="text-white/80 mt-2">{ref ? `Hoje você estaria dentro do corte de ${dentro} de ${linhas.length} faculdades da sua lista.` : 'Registre um simulado com as 5 notas para ver suas chances.'}</p>
         </div>
@@ -66,15 +66,15 @@ export function SisuPage() {
                   <Badge tom={FAIXA[fx][1]}>{FAIXA[fx][0]}</Badge>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-sunken p-3"><p className="text-xs font-bold text-muted">Nota de corte</p><p className="titulo text-2xl num">{f.nota_corte != null ? numero(f.nota_corte, 2) : '—'}</p></div>
-                  <div className="rounded-lg bg-sunken p-3"><p className="text-xs font-bold text-muted">Sua nota (pesos)</p><p className={cx('titulo text-2xl num', fx === 'dentro' && 'text-ok')}>{nota != null ? numero(nota, 1) : '—'}</p></div>
+                  <div className="rounded-lg bg-sunken p-3"><p className="text-xs font-medium text-muted">Nota de corte</p><p className="titulo text-2xl num">{f.nota_corte != null ? numero(f.nota_corte, 2) : '—'}</p></div>
+                  <div className="rounded-lg bg-sunken p-3"><p className="text-xs font-medium text-muted">Sua nota (pesos)</p><p className={cx('titulo text-2xl num', fx === 'dentro' && 'text-ok')}>{nota != null ? numero(nota, 1) : '—'}</p></div>
                 </div>
                 {f.nota_corte != null && (
                   <div>
                     <div className="relative h-2.5 rounded-full bg-sunken">
                       <div className={cx('h-full rounded-full transition-[width] duration-500', fx === 'dentro' ? 'bg-ok' : fx === 'perto' ? 'bg-fire' : 'bg-brand')} style={{ width: `${escala(nota, f.nota_corte) * 100}%` }} />
                     </div>
-                    <p className="mt-1.5 text-xs font-bold text-muted">{d == null ? 'Sem nota para comparar' : d >= 0 ? `${numero(d, 1)} pontos acima do corte` : `Faltam ${numero(-d, 1)} pontos`}</p>
+                    <p className="mt-1.5 text-xs font-medium text-muted">{d == null ? 'Sem nota para comparar' : d >= 0 ? `${numero(d, 1)} pontos acima do corte` : `Faltam ${numero(-d, 1)} pontos`}</p>
                   </div>
                 )}
                 <div className="flex items-center justify-between gap-2 border-t border-line pt-3 mt-auto">
@@ -103,7 +103,7 @@ export function SisuPage() {
               <Campo rotulo="Fonte">{(id) => <Input id={id} placeholder="Portal do SISU" value={edit.fonte ?? ''} onChange={(e) => setEdit({ ...edit, fonte: e.target.value })} />}</Campo>
             </div>
             <div>
-              <p className="text-[13px] font-bold text-muted mb-2">Pesos do curso (edital)</p>
+              <p className="text-[13px] font-medium text-muted mb-2">Pesos do curso (edital)</p>
               <div className="grid grid-cols-5 gap-2">
                 {NOTAS.map((a) => (
                   <Campo key={a.chave} rotulo={a.nome.slice(0, 4) + '.'}>{(id) => <NumberInput id={id} aria-label={`Peso de ${a.nome}`} min={0} max={10} step={0.5} value={edit.pesos?.[a.chave] ?? 1} onValor={(v) => setEdit({ ...edit, pesos: { ...(edit.pesos ?? PESOS_IGUAIS), [a.chave]: v ?? 0 } })} />}</Campo>

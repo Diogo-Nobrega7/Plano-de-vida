@@ -17,9 +17,9 @@ export function Onboarding() {
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-night/60 backdrop-blur-sm p-4">
-      <div className="entrar w-full max-w-lg card shadow-lg p-6 md:p-8 flex flex-col gap-6">
+      <div className="surgir w-full max-w-lg card shadow-lg p-6 md:p-8 flex flex-col gap-6">
         <div className="flex flex-col gap-3">
-          <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-brand">Etapa {etapa + 1} de 3 · {etapas[etapa]}</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-brand">Etapa {etapa + 1} de 3 · {etapas[etapa]}</span>
           <Progress valor={(etapa + 1) / 3} />
         </div>
         {etapa === 0 && (

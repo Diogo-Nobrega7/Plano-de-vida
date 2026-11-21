@@ -49,11 +49,11 @@ export function RevisoesPage() {
           <div className="mx-auto w-full max-w-2xl">
             <Card className="!p-0 overflow-hidden shadow-md">
               <div className="flex items-center justify-between border-b border-line px-6 py-3 text-sm">
-                <span className="font-bold text-muted">{(atual.materia_id && nomeMat.get(atual.materia_id)) || 'Geral'}</span>
+                <span className="font-medium text-muted">{(atual.materia_id && nomeMat.get(atual.materia_id)) || 'Geral'}</span>
                 <span className="flex gap-2"><Badge tom={atual.tipo === 'erro' ? 'bad' : 'brand'}>{atual.tipo === 'erro' ? 'Erro' : 'Cartão'}</Badge><Badge>Caixa {atual.caixa}</Badge></span>
               </div>
               <div className="px-6 py-10 text-center">
-                <p className="text-xl font-bold leading-relaxed whitespace-pre-line">{atual.frente}</p>
+                <p className="text-xl font-medium leading-relaxed whitespace-pre-line">{atual.frente}</p>
                 {atual.origem && <p className="mt-2 text-sm text-muted">Motivo do erro: {atual.origem}</p>}
                 {mostrar && <div className="entrar mt-6 rounded-lg bg-sunken p-5 text-left whitespace-pre-line">{atual.verso || 'Sem resposta cadastrada.'}</div>}
               </div>
@@ -79,7 +79,7 @@ export function RevisoesPage() {
                   <Badge tom={r.tipo === 'erro' ? 'bad' : 'brand'}>{r.tipo === 'erro' ? 'Erro' : 'Cartão'}</Badge>
                   <span className="flex-1 min-w-[180px] text-sm font-semibold truncate">{r.frente}</span>
                   <span className="text-xs text-muted">{(r.materia_id && nomeMat.get(r.materia_id)) || '—'}</span>
-                  <span className={cx('text-xs font-bold', vencida(r.proxima, hoje) ? 'text-bad' : 'text-muted')}>{vencida(r.proxima, hoje) ? 'hoje' : dataBR(r.proxima)}</span>
+                  <span className={cx('text-xs font-medium', vencida(r.proxima, hoje) ? 'text-bad' : 'text-muted')}>{vencida(r.proxima, hoje) ? 'hoje' : dataBR(r.proxima)}</span>
                   <button type="button" aria-label="Apagar" onClick={() => revisoes.remover(r.id)} className="text-faint hover:text-bad p-1 md:opacity-0 group-hover:opacity-100"><Trash2 size={15} /></button>
                 </li>
               ))}

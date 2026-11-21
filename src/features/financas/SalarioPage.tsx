@@ -8,7 +8,7 @@ export function SalarioPage() {
   const [dep, setDep] = useState<number | null>(0)
   const [alvo, setAlvo] = useState<number | null>(50000)
   const r = salarioLiquido(bruto ?? 0, dep ?? 0)
-  const partes = [{ n: 'Líquido', v: r.liquido, c: '#1D4ED8' }, { n: 'INSS', v: r.inss, c: '#F59E0B' }, { n: 'IR', v: r.ir, c: '#DC2626' }]
+  const partes = [{ n: 'Líquido', v: r.liquido, c: '#5482FF' }, { n: 'INSS', v: r.inss, c: '#F59E0B' }, { n: 'IR', v: r.ir, c: '#F87171' }]
   const faixas = [1621, 3000, 5000, 7350, 10000, 15000, 20000, 30000, 50000, 100000]
 
   return (
@@ -44,11 +44,11 @@ export function SalarioPage() {
       <Card>
         <CardTitulo titulo="Quanto sobra em cada faixa" />
         <div className="overflow-x-auto -mx-2">
-          <table className="w-full text-sm min-w-[560px]">
-            <thead><tr className="text-left text-muted">{['Bruto', 'INSS', 'IR', 'Líquido', 'Alíquota efetiva'].map((h) => <th key={h} className="px-2 py-2 font-bold">{h}</th>)}</tr></thead>
+          <table className="tabela min-w-[560px]">
+            <thead><tr className="text-left text-muted">{['Bruto', 'INSS', 'IR', 'Líquido', 'Alíquota efetiva'].map((h) => <th key={h} className="px-2 py-2 font-medium">{h}</th>)}</tr></thead>
             <tbody className="divide-y divide-line">
               {faixas.map((b) => { const x = salarioLiquido(b, dep ?? 0); return (
-                <tr key={b}><td className="px-2 py-2.5 font-bold num">{brl(b)}</td><td className="px-2 num">{brl(x.inss)}</td><td className="px-2 num">{brl(x.ir)}</td><td className="px-2 num font-semibold">{brl(x.liquido)}</td><td className="px-2"><Badge tom={x.aliquotaEfetiva < 0.12 ? 'ok' : x.aliquotaEfetiva < 0.22 ? 'brand' : 'fire'}>{pct(x.aliquotaEfetiva, 1)}</Badge></td></tr>
+                <tr key={b}><td className="px-2 py-2.5 font-medium num">{brl(b)}</td><td className="px-2 num">{brl(x.inss)}</td><td className="px-2 num">{brl(x.ir)}</td><td className="px-2 num font-semibold">{brl(x.liquido)}</td><td className="px-2"><Badge tom={x.aliquotaEfetiva < 0.12 ? 'ok' : x.aliquotaEfetiva < 0.22 ? 'brand' : 'fire'}>{pct(x.aliquotaEfetiva, 1)}</Badge></td></tr>
               ) })}
             </tbody>
           </table>

@@ -5,7 +5,7 @@ import { Badge, Cabecalho, Campo, Card, CardTitulo, NumberInput, Segmented, cx, 
 import { CATALOGO, CDI, CURVA_CDI, IPCA_12M, IPCA_LONGO, SELIC, evolucao, simularInvestimento, taxasAnuais } from '@/lib/investimentos'
 import { brl, brlCurto, pct } from '@/lib/format'
 
-const CORES = ['#1D4ED8', '#0EA5E9', '#16A34A', '#EA580C', '#7C3AED', '#DB2777', '#64748B', '#CA8A04', '#0F766E']
+const CORES = ['#5482FF', '#38BDF8', '#34D399', '#FB923C', '#A78BFA', '#F472B6', '#64748B', '#CA8A04', '#0F766E']
 const IR = { regressivo: '22,5% → 15%', isento: 'Isento', acoes: '15% do lucro' }
 
 export function InvestirPage() {
@@ -40,7 +40,7 @@ export function InvestirPage() {
             <div className="mt-4 flex flex-wrap gap-2">
               {CATALOGO.map((i, k) => (
                 <button key={i.nome} type="button" aria-pressed={sel.includes(i.nome)} onClick={() => setSel(sel.includes(i.nome) ? sel.filter((x) => x !== i.nome) : [...sel, i.nome])}
-                  className={cx('flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-bold transition', sel.includes(i.nome) ? 'border-brand bg-brand-soft text-brand' : 'border-line text-muted hover:text-ink')}>
+                  className={cx('flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-medium transition', sel.includes(i.nome) ? 'border-brand bg-brand-soft text-brand' : 'border-line text-muted hover:text-ink')}>
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: CORES[k] }} />{i.nome}
                 </button>
               ))}
@@ -54,8 +54,8 @@ export function InvestirPage() {
                 {res.map(({ i, r }, k) => (
                   <li key={i.nome} className="flex flex-col gap-1.5">
                     <div className="flex items-baseline justify-between gap-3 text-sm">
-                      <span className="font-bold flex items-center gap-2">{k === 0 && <Badge tom="ok">melhor</Badge>}{i.nome}</span>
-                      <span className="font-extrabold num">{brl(r.liquido)}</span>
+                      <span className="font-medium flex items-center gap-2">{k === 0 && <Badge tom="ok">melhor</Badge>}{i.nome}</span>
+                      <span className="font-semibold num">{brl(r.liquido)}</span>
                     </div>
                     <div className="h-2.5 rounded-full bg-sunken"><div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${(r.liquido / max) * 100}%`, background: CORES[CATALOGO.indexOf(i)] }} /></div>
                     <span className="text-xs text-muted">investiu {brlCurto(r.investido)} · IR {brlCurto(r.imposto)} · {brlCurto(r.liquidoReal)} em reais de hoje</span>
@@ -87,7 +87,7 @@ export function InvestirPage() {
           {CATALOGO.map((i, k) => (
             <Card key={i.nome} className="flex flex-col gap-3">
               <div className="flex items-start justify-between gap-2">
-                <div><p className="text-xs font-bold text-muted">{i.categoria}</p><p className="titulo text-lg">{i.nome}</p></div>
+                <div><p className="text-xs font-medium text-muted">{i.categoria}</p><p className="titulo text-lg">{i.nome}</p></div>
                 <span className="h-3 w-3 rounded-full mt-1.5" style={{ background: CORES[k] }} />
               </div>
               <p className="titulo text-3xl num">{pct(i.taxa, 1)}<span className="text-sm font-semibold text-muted"> ao ano hoje</span></p>
@@ -112,7 +112,7 @@ export function InvestirPage() {
                 ['Objetivos de 1 a 5 anos', 'LCI/LCA ou CDB com vencimento perto da data, ou Tesouro Prefixado vencendo no objetivo.'],
                 ['Longo prazo', `Tesouro IPCA+ como base (protege da inflação de ~${pct(IPCA_LONGO, 0)}) e uma parte menor em ETF de ações e FIIs.`],
                 ['Diversifique', 'Por tipo e por emissor, respeitando o limite do FGC (R$ 250 mil por banco).']].map(([t, d], k) => (
-                <li key={t} className="flex gap-4"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand text-brand-ink font-extrabold">{k + 1}</span><span><b>{t}</b><br /><span className="text-sm text-muted">{d}</span></span></li>
+                <li key={t} className="flex gap-4"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand text-brand-ink font-semibold">{k + 1}</span><span><b>{t}</b><br /><span className="text-sm text-muted">{d}</span></span></li>
               ))}
             </ol>
           </Card>

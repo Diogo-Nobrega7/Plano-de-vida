@@ -57,7 +57,7 @@ export function ResumoPage() {
         acao={<><Button variante="secundario" onClick={() => { setEditInv(null); setFi({ nome: '', tipo: 'Tesouro Direto', valor_aplicado: null, saldo_atual: null }); setModal('inv') }} icone={<PiggyBank size={16} />}>Investimento</Button><Button onClick={() => setModal('lanc')} icone={<Plus size={16} />}>Lançamento</Button></>} />
 
       <StatRow>
-        <Stat rotulo="Patrimônio" valor={brl(patrimonio)} sub={aplicado ? `${patrimonio >= aplicado ? '+' : ''}${(((patrimonio / aplicado) - 1) * 100).toFixed(1).replace('.', ',')}% de rendimento` : 'cadastre seus investimentos'} tom={patrimonio >= aplicado ? 'ok' : 'bad'} />
+        <Stat rotulo="Patrimônio" valor={brl(patrimonio)} sub={aplicado ? `${patrimonio >= aplicado ? '+' : ''}${(((patrimonio / aplicado) - 1) * 100).toFixed(1).replace('.', ',')}% de rendimento` : 'cadastre seus investimentos'} tom={!aplicado ? 'muted' : patrimonio >= aplicado ? 'ok' : 'bad'} />
         <Stat rotulo="Entrou no mês" valor={brl(soma('receita'))} sub={nomeMes(mes)} />
         <Stat rotulo="Gastou no mês" valor={brl(soma('despesa'))} sub={`${porCategoria.length} categorias`} />
         <Stat rotulo="Sobrou" valor={brl(sobra)} sub={`investiu ${brl(soma('aporte'))}`} tom={sobra >= 0 ? 'ok' : 'bad'} />
@@ -73,9 +73,9 @@ export function ResumoPage() {
                   <XAxis dataKey="mes" {...eixo} />
                   <YAxis {...eixo} tickFormatter={(v) => `${v / 1000}k`} />
                   <Tooltip cursor={{ fill: 'rgb(var(--sunken))' }} content={<DicaGrafico formato={(v: number) => brl(v)} />} />
-                  <Bar dataKey="Receitas" fill="#1D4ED8" radius={[5, 5, 0, 0]} />
+                  <Bar dataKey="Receitas" fill="#5482FF" radius={[5, 5, 0, 0]} />
                   <Bar dataKey="Despesas" fill="#F59E0B" radius={[5, 5, 0, 0]} />
-                  <Bar dataKey="Aportes" fill="#16A34A" radius={[5, 5, 0, 0]} />
+                  <Bar dataKey="Aportes" fill="#34D399" radius={[5, 5, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -102,10 +102,10 @@ export function ResumoPage() {
             {inv.dados.map((i) => (
               <li key={i.id} className="group flex items-center gap-3 rounded-lg bg-sunken px-4 py-3">
                 <button type="button" className="flex-1 min-w-0 text-left" onClick={() => { setEditInv(i); setFi({ nome: i.nome, tipo: i.tipo, valor_aplicado: Number(i.valor_aplicado), saldo_atual: Number(i.saldo_atual) }); setModal('inv') }}>
-                  <span className="block font-bold truncate">{i.nome}</span>
+                  <span className="block font-medium truncate">{i.nome}</span>
                   <span className="block text-xs text-muted">{i.tipo} · atualizado {dataBR(i.atualizado_em)}</span>
                 </button>
-                <span className="text-right"><span className="block font-extrabold num">{brl(Number(i.saldo_atual))}</span><span className="block text-xs text-muted num">aplicou {brl(Number(i.valor_aplicado))}</span></span>
+                <span className="text-right"><span className="block font-semibold num">{brl(Number(i.saldo_atual))}</span><span className="block text-xs text-muted num">aplicou {brl(Number(i.valor_aplicado))}</span></span>
                 <button type="button" aria-label={`Apagar ${i.nome}`} onClick={() => inv.remover(i.id)} className="text-faint hover:text-bad md:opacity-0 group-hover:opacity-100"><Trash2 size={15} /></button>
               </li>
             ))}
@@ -121,7 +121,7 @@ export function ResumoPage() {
                   {l.tipo === 'despesa' ? <ArrowDownRight size={16} /> : <ArrowUpRight size={16} />}
                 </span>
                 <span className="flex-1 min-w-0"><span className="block text-sm font-semibold truncate">{l.categoria}{l.descricao ? ` · ${l.descricao}` : ''}</span><span className="block text-xs text-muted">{nomeMes(l.mes)} · {l.tipo}</span></span>
-                <span className="font-bold num">{l.tipo === 'despesa' ? '−' : '+'}{brl(Number(l.valor), 2)}</span>
+                <span className="font-medium num">{l.tipo === 'despesa' ? '−' : '+'}{brl(Number(l.valor), 2)}</span>
                 <button type="button" aria-label="Apagar lançamento" onClick={() => lanc.remover(l.id)} className="text-faint hover:text-bad md:opacity-0 group-hover:opacity-100"><Trash2 size={15} /></button>
               </li>
             ))}
@@ -134,7 +134,7 @@ export function ResumoPage() {
         <CardTitulo titulo="Quatro números que não são a mesma coisa" />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[['Faturamento', 'Tudo o que entra numa empresa, antes de custos.'], ['Lucro', 'Faturamento − custos − salários − impostos da empresa.'], ['Renda pessoal', 'O que sobra para você depois dos impostos.'], ['Patrimônio', 'Tudo o que você tem menos as dívidas.']].map(([t, d]) => (
-            <div key={t} className="rounded-lg bg-sunken p-4"><p className="font-extrabold">{t}</p><p className="text-sm text-muted mt-1">{d}</p></div>
+            <div key={t} className="rounded-lg bg-sunken p-4"><p className="font-semibold">{t}</p><p className="text-sm text-muted mt-1">{d}</p></div>
           ))}
         </div>
         <p className="mt-4 text-sm text-muted">Renda alta e liberdade financeira são metas diferentes: a primeira depende do seu trabalho; a segunda, do patrimônio.</p>

@@ -4,7 +4,7 @@ export type Tema = 'sistema' | 'claro' | 'escuro'
 
 /** Preferência visual (só isso fica no navegador). */
 export function useTema() {
-  const [tema, setTema] = useState<Tema>(() => (localStorage.getItem('rumo:tema') as Tema) || 'sistema')
+  const [tema, setTema] = useState<Tema>(() => (localStorage.getItem('rumo:tema') as Tema) || 'escuro')
   useEffect(() => {
     localStorage.setItem('rumo:tema', tema)
     const r = document.documentElement

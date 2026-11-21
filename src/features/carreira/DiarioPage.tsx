@@ -26,8 +26,8 @@ export function DiarioPage() {
               <li key={d.id} className="relative pl-10 group">
                 <span className={`absolute left-0 top-5 h-6 w-6 rounded-full ring-4 ring-bg ${pend ? 'bg-fire' : d.resultado ? 'bg-ok' : 'bg-brand'}`} />
                 <Card>
-                  <div className="flex flex-wrap items-center gap-2 mb-2"><span className="text-sm font-bold text-muted">{dataBR(d.data)}</span>{pend ? <Badge tom="fire">revisar agora</Badge> : d.revisar_em && <Badge>revisar em {dataBR(d.revisar_em)}</Badge>}{d.resultado && <Badge tom="ok">revisada</Badge>}</div>
-                  <p className="font-bold text-[16px]">{d.decisao}</p>
+                  <div className="flex flex-wrap items-center gap-2 mb-2"><span className="text-sm font-medium text-muted">{dataBR(d.data)}</span>{pend ? <Badge tom="fire">revisar agora</Badge> : d.revisar_em && <Badge>revisar em {dataBR(d.revisar_em)}</Badge>}{d.resultado && <Badge tom="ok">revisada</Badge>}</div>
+                  <p className="font-medium text-[16px]">{d.decisao}</p>
                   {d.premissas && <p className="mt-2 text-sm text-muted"><b className="text-ink">Premissas:</b> {d.premissas}</p>}
                   {d.resultado && <p className="mt-2 text-sm rounded-lg bg-ok-soft p-3"><b>O que aconteceu:</b> {d.resultado}</p>}
                   <div className="mt-4 flex gap-2">

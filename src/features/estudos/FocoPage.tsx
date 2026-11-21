@@ -55,7 +55,7 @@ export function FocoPage() {
           <Anel valor={crono.decorrido / crono.duracao} tamanho={240} espessura={14} cor="#fff" fundo="rgb(255 255 255 / .18)">
             <span>
               <span className="titulo text-6xl num block leading-none">{crono.texto}</span>
-              <span className="text-sm font-bold text-white/70">{crono.rodando ? 'focando…' : crono.decorrido ? 'pausado' : 'pronto'}</span>
+              <span className="text-sm font-medium text-white/70">{crono.rodando ? 'focando…' : crono.decorrido ? 'pausado' : 'pronto'}</span>
             </span>
           </Anel>
           <Select aria-label="Matéria da sessão" value={materiaId} onChange={(e) => setMateriaId(e.target.value)} className="max-w-xs !bg-white/10 !border-white/20 !text-white">
@@ -84,7 +84,7 @@ export function FocoPage() {
             </ResponsiveContainer>
           </div>
           <div className="mt-4 flex flex-col gap-2.5">
-            <p className="text-[13px] font-bold text-muted">Por matéria</p>
+            <p className="text-[13px] font-medium text-muted">Por matéria</p>
             {porMateria.map(([nome, min]) => (
               <div key={nome} className="flex items-center gap-3 text-sm">
                 <span className="w-36 truncate font-semibold">{nome}</span>
@@ -103,7 +103,7 @@ export function FocoPage() {
           <ul className="divide-y divide-line -my-2">
             {sessoes.dados.slice(0, 40).map((s) => (
               <li key={s.id} className="group flex flex-wrap items-center gap-3 py-3">
-                <span className="w-24 text-sm font-bold text-muted">{dataBR(s.data)}</span>
+                <span className="w-24 text-sm font-medium text-muted">{dataBR(s.data)}</span>
                 <span className="flex-1 min-w-[140px] text-sm font-semibold">{(s.materia_id && nomeMat.get(s.materia_id)) || 'Sem matéria'}{s.observacoes && <span className="font-normal text-muted"> · {s.observacoes}</span>}</span>
                 {s.questoes ? <Badge tom="brand">{s.acertos ?? 0}/{s.questoes} questões</Badge> : null}
                 <Badge>{minutos(s.minutos)}</Badge>

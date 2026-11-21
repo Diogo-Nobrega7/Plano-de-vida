@@ -7,7 +7,7 @@ import { minutos as fmtMin } from '@/lib/format'
 import { DIAS, DIAS_CURTOS, conflita, diaDaSemana, fimDoBloco, sugerirSemana } from '@/lib/cronograma'
 import type { Bloco } from '@/data/tipos'
 
-const COR_AREA: Record<string, string> = { Linguagens: '#0EA5E9', Humanas: '#EA580C', Natureza: '#16A34A', 'Matemática': '#1D4ED8', 'Redação': '#7C3AED' }
+const COR_AREA: Record<string, string> = { Linguagens: '#38BDF8', Humanas: '#FB923C', Natureza: '#34D399', 'Matemática': '#5482FF', 'Redação': '#A78BFA' }
 const PESO_FREQ: Record<string, number> = { Alta: 3, 'Média': 2, Baixa: 1 }
 
 export function CronogramaPage() {
@@ -72,8 +72,8 @@ export function CronogramaPage() {
       <button type="button" onClick={() => setEdit(b)}
         className={cx('group w-full text-left rounded-lg border-l-[3px] bg-surface px-3 py-2.5 shadow-sm ring-1 ring-line transition hover:shadow-md', ok && 'opacity-60')}
         style={{ borderLeftColor: COR_AREA[m?.area ?? ''] ?? 'rgb(var(--faint))' }}>
-        <span className="flex items-center justify-between gap-1 text-[11px] font-bold text-muted num">{b.inicio}–{fimDoBloco(b.inicio, b.minutos)}{ok && <Check size={13} className="text-ok" strokeWidth={3} />}</span>
-        <span className={cx('block text-[13px] font-bold leading-snug mt-0.5', ok && 'line-through')}>{b.titulo || m?.nome || 'Estudo livre'}</span>
+        <span className="flex items-center justify-between gap-1 text-[11px] font-medium text-muted num">{b.inicio}–{fimDoBloco(b.inicio, b.minutos)}{ok && <Check size={13} className="text-ok" strokeWidth={3} />}</span>
+        <span className={cx('block text-[13px] font-medium leading-snug mt-0.5', ok && 'line-through')}>{b.titulo || m?.nome || 'Estudo livre'}</span>
       </button>
     )
   }
@@ -107,7 +107,7 @@ export function CronogramaPage() {
                       <li key={b.id} className={cx('flex items-center gap-3 rounded-lg p-3', ok ? 'bg-ok-soft' : 'bg-sunken')}>
                         <span className="h-9 w-1.5 rounded-full shrink-0" style={{ background: COR_AREA[m?.area ?? ''] ?? 'rgb(var(--faint))' }} />
                         <span className="min-w-0 flex-1">
-                          <span className="block text-sm font-bold truncate">{b.titulo || m?.nome || 'Estudo livre'}</span>
+                          <span className="block text-sm font-medium truncate">{b.titulo || m?.nome || 'Estudo livre'}</span>
                           <span className="block text-xs text-muted num">{b.inicio}–{fimDoBloco(b.inicio, b.minutos)} · {fmtMin(b.minutos)}</span>
                         </span>
                         {ok ? <Badge tom="ok"><Check size={12} />feito</Badge> : <Button tamanho="sm" onClick={() => concluir(b)}>Concluir</Button>}
@@ -123,7 +123,7 @@ export function CronogramaPage() {
             <div role="group" aria-label="Dia" className="grid grid-cols-7 gap-1 rounded-md bg-sunken p-1">
               {DIAS_CURTOS.map((d, i) => (
                 <button key={d} type="button" aria-pressed={diaMovel === String(i)} onClick={() => setDiaMovel(String(i))}
-                  className={cx('h-9 rounded-[9px] text-[13px] font-bold transition-all', diaMovel === String(i) ? 'bg-surface text-brand shadow-sm' : 'text-muted', i === diaHoje && diaMovel !== String(i) && 'text-brand')}>{d}</button>
+                  className={cx('h-9 rounded-[9px] text-[13px] font-medium transition-all', diaMovel === String(i) ? 'bg-surface text-brand shadow-sm' : 'text-muted', i === diaHoje && diaMovel !== String(i) && 'text-brand')}>{d}</button>
               ))}
             </div>
             <div className="mt-3 flex flex-col gap-2">
@@ -138,12 +138,12 @@ export function CronogramaPage() {
               return (
                 <div key={d} className={cx('rounded-xl p-2.5 flex flex-col gap-2 min-h-[220px]', i === diaHoje ? 'bg-brand-soft ring-1 ring-brand/30' : 'bg-sunken/70')}>
                   <div className="flex items-baseline justify-between px-1">
-                    <span className={cx('text-sm font-extrabold', i === diaHoje && 'text-brand')}>{d}</span>
-                    <span className="text-[11px] font-bold text-muted">{lista.length ? fmtMin(lista.reduce((s, b) => s + b.minutos, 0)) : ''}</span>
+                    <span className={cx('text-sm font-semibold', i === diaHoje && 'text-brand')}>{d}</span>
+                    <span className="text-[11px] font-medium text-muted">{lista.length ? fmtMin(lista.reduce((s, b) => s + b.minutos, 0)) : ''}</span>
                   </div>
                   {lista.map((b) => <CartaoBloco key={b.id} b={b} dia={i} />)}
                   <button type="button" onClick={() => setEdit({ dia: i, inicio: lista.length ? fimDoBloco(lista[lista.length - 1].inicio, lista[lista.length - 1].minutos + 10) : '14:00', minutos: 50 })}
-                    className="mt-auto rounded-lg border border-dashed border-line py-2 text-xs font-bold text-muted hover:text-brand hover:border-brand/40 transition" aria-label={`Adicionar bloco na ${DIAS[i]}`}>+ bloco</button>
+                    className="mt-auto rounded-lg border border-dashed border-line py-2 text-xs font-medium text-muted hover:text-brand hover:border-brand/40 transition" aria-label={`Adicionar bloco na ${DIAS[i]}`}>+ bloco</button>
                 </div>
               )
             })}

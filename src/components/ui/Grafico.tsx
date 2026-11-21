@@ -1,12 +1,12 @@
 /** Estilo único dos gráficos (Recharts), usando os tokens de cor: claro e escuro iguais em todo o site. */
 import type { ReactNode } from 'react'
 
-export const eixo = { tick: { fontSize: 12, fill: 'rgb(var(--muted))' }, tickLine: false, axisLine: false } as const
-export const grade = { stroke: 'rgb(var(--line))', vertical: false, strokeDasharray: '3 4' } as const
-export const legenda = { iconType: 'circle' as const, iconSize: 8, wrapperStyle: { fontSize: 12, paddingTop: 8 } }
+export const eixo = { tick: { fontSize: 11.5, fill: 'rgb(var(--faint))' }, tickLine: false, axisLine: false } as const
+export const grade = { stroke: 'rgb(var(--line))', vertical: false, strokeDasharray: '2 6' } as const
+export const legenda = { iconType: 'circle' as const, iconSize: 7, wrapperStyle: { fontSize: 12, paddingTop: 10, color: 'rgb(var(--muted))' } }
 
 /** Paleta das séries (azuis + contrastes que se distinguem também pela claridade). */
-export const SERIES = ['#1D4ED8', '#0EA5E9', '#16A34A', '#EA580C', '#7C3AED', '#DB2777', '#64748B', '#CA8A04', '#0F766E']
+export const SERIES = ['#5482FF', '#38BDF8', '#34D399', '#FB923C', '#A78BFA', '#F472B6', '#94A3B8', '#FACC15', '#2DD4BF']
 
 interface ItemTooltip { name?: string | number; value?: number | string; color?: string; dataKey?: string | number }
 

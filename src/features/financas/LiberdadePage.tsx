@@ -8,7 +8,7 @@ import { diasEntre, hojeISO } from '@/lib/datas'
 import { brl, brlCurto } from '@/lib/format'
 import { idadeQueAtinge, patrimonioNecessario, realParaNominal, simularPatrimonio, type Fase } from '@/lib/financas'
 
-const CORES = ['#94A3B8', '#1D4ED8', '#0EA5E9', '#7C3AED', '#16A34A']
+const CORES = ['#94A3B8', '#5482FF', '#38BDF8', '#A78BFA', '#34D399']
 
 export function LiberdadePage() {
   const { perfil: salvo, salvarPerfil } = usePerfil()
@@ -46,7 +46,7 @@ export function LiberdadePage() {
 
       <section className="hero rounded-2xl p-6 md:p-8 text-white grid gap-6 md:grid-cols-[1fr_auto] items-center">
         <div>
-          <p className="text-[13px] font-bold text-white/70">Sua meta</p>
+          <p className="text-[13px] font-medium text-white/70">Sua meta</p>
           <p className="titulo text-5xl mt-1">{brlCurto(meta)}</p>
           <p className="text-white/80 mt-2">{brl(perfil.renda_desejada)}/mês × 12 ÷ {Math.round(perfil.taxa_saque * 100)}% de saque ao ano. Hoje você tem {brl(inicial)}.</p>
         </div>
@@ -55,7 +55,7 @@ export function LiberdadePage() {
             const ida = idadeQueAtinge(pts, meta)
             return (
               <div key={c.id} className="rounded-xl bg-white/10 ring-1 ring-white/15 px-4 py-3 text-center min-w-[104px]">
-                <p className="text-xs font-bold text-white/70">{c.nome}</p>
+                <p className="text-xs font-medium text-white/70">{c.nome}</p>
                 <p className="titulo text-3xl num">{ida ?? '—'}</p>
                 <p className="text-[11px] text-white/60">{ida ? 'anos' : 'não chega'}</p>
               </div>
@@ -91,8 +91,8 @@ export function LiberdadePage() {
           {editando ? (
             <div className="flex flex-col gap-3">
               <div className="overflow-x-auto">
-                <table className="w-full text-sm min-w-[640px]">
-                  <thead><tr className="text-left text-muted">{['Fase', 'De', 'Até', 'Renda mín.', 'Renda máx.', 'Aporte/mês', ''].map((h) => <th key={h} className="px-1.5 py-2 font-bold">{h}</th>)}</tr></thead>
+                <table className="tabela min-w-[640px]">
+                  <thead><tr className="text-left text-muted">{['Fase', 'De', 'Até', 'Renda mín.', 'Renda máx.', 'Aporte/mês', ''].map((h) => <th key={h} className="px-1.5 py-2 font-medium">{h}</th>)}</tr></thead>
                   <tbody>
                     {fases.map((f, i) => (
                       <tr key={i}>

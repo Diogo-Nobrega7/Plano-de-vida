@@ -16,7 +16,7 @@ function Player({ aula }: { aula: Aula }) {
   )
   return (
     <a href={aula.url} target="_blank" rel="noreferrer" className="aspect-video w-full rounded-xl bg-night grid place-items-center text-white gap-2 hover:brightness-125 transition">
-      <span className="flex flex-col items-center gap-2 font-bold"><ExternalLink size={28} />Abrir aula em nova aba</span>
+      <span className="flex flex-col items-center gap-2 font-medium"><ExternalLink size={28} />Abrir aula em nova aba</span>
     </a>
   )
 }
@@ -75,14 +75,14 @@ export function AulasPage() {
       </div>
       <div className={cx('grid gap-4', foco ? 'md:grid-cols-[1fr_280px]' : '')}>
         <Card className={foco ? '!bg-white/5 !border-white/10' : ''}>
-          <label htmlFor="notas" className={cx('text-[13px] font-bold', foco ? 'text-white/70' : 'text-muted')}>Anotações da aula</label>
+          <label htmlFor="notas" className={cx('text-[13px] font-medium', foco ? 'text-white/70' : 'text-muted')}>Anotações da aula</label>
           <Textarea id="notas" rows={5} key={sel.id} defaultValue={sel.notas ?? ''} placeholder="Fórmulas, resumo, dúvidas…"
             onBlur={(e) => e.target.value !== (sel.notas ?? '') && aulas.atualizar(sel.id, { notas: e.target.value }, 'Anotações salvas')}
             className={cx('mt-2', foco && '!bg-white/5 !border-white/10 !text-white')} />
         </Card>
         {foco && (
           <Card className="!bg-white/5 !border-white/10 text-white flex flex-col items-center gap-3">
-            <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-white/60">Pomodoro</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.1em] text-white/60">Pomodoro</span>
             <span className="titulo text-5xl num">{crono.texto}</span>
             <div className="flex gap-2">
               {crono.rodando ? <Button variante="claro" onClick={crono.pausar}>Pausar</Button> : <Button variante="claro" onClick={crono.iniciar}>Iniciar</Button>}
@@ -112,16 +112,16 @@ export function AulasPage() {
                 {materias.dados.filter((m) => aulas.dados.some((a) => a.materia_id === m.id)).map((m) => <option key={m.id} value={m.id}>{m.nome}</option>)}
               </Select>
             </div>
-            <p className="px-3 pt-1 pb-2 text-xs font-bold text-muted">{lista.filter((a) => a.assistida).length} de {lista.length} assistidas</p>
+            <p className="px-3 pt-1 pb-2 text-xs font-medium text-muted">{lista.filter((a) => a.assistida).length} de {lista.length} assistidas</p>
             <ul className="flex flex-col gap-1">
               {lista.map((a, i) => (
                 <li key={a.id} className="group flex items-center">
                   <button type="button" onClick={() => setSelId(a.id)}
                     className={cx('flex flex-1 items-center gap-3 rounded-md px-3 py-2.5 text-left transition-colors min-w-0', sel?.id === a.id ? 'bg-brand-soft' : 'hover:bg-sunken')}>
-                    <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-md text-xs font-extrabold', a.assistida ? 'bg-ok text-white' : sel?.id === a.id ? 'bg-brand text-white' : 'bg-sunken text-muted')}>
+                    <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-md text-xs font-semibold', a.assistida ? 'bg-ok text-white' : sel?.id === a.id ? 'bg-brand text-white' : 'bg-sunken text-muted')}>
                       {a.assistida ? <CheckCircle2 size={15} /> : i + 1}
                     </span>
-                    <span className="min-w-0"><span className="block text-sm font-bold truncate">{a.titulo}</span><span className="block text-xs text-muted truncate">{nomeMat.get(a.materia_id)?.nome}{a.conteudo ? ` · ${a.conteudo}` : ''}</span></span>
+                    <span className="min-w-0"><span className="block text-sm font-medium truncate">{a.titulo}</span><span className="block text-xs text-muted truncate">{nomeMat.get(a.materia_id)?.nome}{a.conteudo ? ` · ${a.conteudo}` : ''}</span></span>
                   </button>
                   <button type="button" aria-label={`Apagar ${a.titulo}`} onClick={() => aulas.remover(a.id)} className="p-2 text-faint opacity-0 group-hover:opacity-100 hover:text-bad"><Trash2 size={15} /></button>
                 </li>

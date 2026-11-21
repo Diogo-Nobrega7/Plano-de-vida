@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
-import { ArrowRight, BarChart3, BookMarked, CalendarDays, Check, Circle, Flame, PenLine, RotateCcw, Target, Timer, Trophy, Zap } from 'lucide-react'
-import { Anel, Badge, Card, CardTitulo, Carregando, Progress, cx } from '@/components/ui'
+import { useMemo, useState } from 'react'
+import { Activity, ArrowRight, ArrowUpRight, BookMarked, CalendarDays, Check, Flame, Gauge, PenLine, Play, RotateCcw, Sparkles, Target, Timer, Trophy } from 'lucide-react'
+import { Anel, Badge, Button, Card, CardTitulo, Carregando, Kpi, Progress, Segmented, cx } from '@/components/ui'
 import { usePerfil } from '@/app/PerfilContext'
 import { link } from '@/app/routes'
 import { useProgresso } from '@/data/useProgresso'
@@ -84,188 +84,188 @@ export function HojePage() {
   const proximasMetas = metas.dados.filter((m) => m.status !== 'concluída').slice(0, 3)
   const ganhas = p.conquistas.filter((c) => c.ganhou)
   const proxima = p.conquistas.find((c) => !c.ganhou)
+  const [visao, setVisao] = useState<'14' | '12s'>('14')
+  const ultimos14 = Array.from({ length: 14 }, (_, i) => somarDias(hoje, i - 13))
+  const max14 = Math.max(60, ...ultimos14.map((d) => porDia.get(d) ?? 0))
+  const missoesOk = p.missoes.filter((m) => m.feito >= m.meta).length
 
   if (p.carregando) return <Carregando />
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <section className="hero lg:col-span-2 rounded-2xl p-6 md:p-8 text-white shadow-md flex flex-col gap-6 overflow-hidden relative">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="flex flex-col gap-5 md:gap-6">
+      {/* Cabeçalho: saudação, dica do dia e contagem para o ENEM */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <p className="rotulo first-letter:uppercase">{dataPorExtenso()}</p>
+          <h1 className="titulo text-[28px] md:text-[32px] leading-tight mt-1">{saudacao()}, {perfil.nome || 'tudo certo'}</h1>
+          <p className="text-muted mt-1 max-w-xl flex items-start gap-1.5"><Sparkles size={15} className="text-brand mt-0.5 shrink-0" />{dica}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="card px-4 py-2.5 flex items-center gap-3">
+            <span className="titulo text-2xl num text-brand">{numero(Math.max(0, diasEnem))}</span>
+            <span className="text-[12px] leading-tight text-muted">dias para<br />o ENEM</span>
+          </div>
+          <a href={link('estudos', 'foco')}><Button icone={<Play size={15} />}>Focar agora</Button></a>
+        </div>
+      </div>
+
+      {/* Indicadores */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <Kpi rotulo="Nível" valor={<span>{p.nivel.nivel}<span className="text-[15px] font-medium text-muted"> · {p.nivel.titulo}</span></span>} icone={<Trophy />} sub={`${numero(p.nivel.xpNoNivel)} / ${numero(p.nivel.xpParaProximo)} XP`}>
+          <Progress valor={p.nivel.progresso} />
+        </Kpi>
+        <Kpi rotulo="Sequência" valor={`${p.seq.atual} ${p.seq.atual === 1 ? 'dia' : 'dias'}`} icone={<Flame />} tom="fire" sub={`Recorde de ${p.seq.recorde}`}>
+          <div className="flex gap-1">
+            {semanaAtual.map((d, i) => {
+              const ok = diasEstudo.has(d)
+              return <span key={d} title={letras[i]} className={cx('h-1.5 flex-1 rounded-full', ok ? 'bg-fire' : d > hoje ? 'bg-sunken/50' : 'bg-sunken', d === hoje && !ok && 'ring-1 ring-fire/50')} />
+            })}
+          </div>
+        </Kpi>
+        <Kpi rotulo="Foco na semana" valor={minutos(minSemana)} icone={<Timer />} tom="ok"
+          sub={minAnterior ? <span className={minSemana >= minAnterior ? 'text-ok' : 'text-muted'}>{minSemana >= minAnterior ? '▲' : '▼'} vs {minutos(minAnterior)} na anterior</span> : 'Primeira semana registrada'} />
+        <Kpi rotulo="Acerto em questões" valor={p.totalQuestoes ? `${Math.round(acertoPct * 100)}%` : '—'} icone={<Gauge />}
+          sub={qSemana ? `${numero(qSemana)} nesta semana · ${Math.round((aSemana / qSemana) * 100)}%` : `${numero(p.totalQuestoes)} questões no total`} />
+      </div>
+
+      {/* Plano + missões */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.55fr_1fr] items-start">
+        <section className="hero rounded-xl p-5 md:p-6 text-white">
+          <div className="flex items-center justify-between gap-3 mb-4">
             <div>
-              <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-white/70 first-letter:uppercase">{dataPorExtenso()}</p>
-              <h1 className="titulo text-[34px] md:text-[40px] leading-tight mt-1">{saudacao()}, {perfil.nome || 'tudo certo'}.</h1>
-              <p className="text-white/85 mt-2 max-w-xl text-[15px]">{dica}</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/50">Plano de hoje</p>
+              <p className="text-[17px] font-semibold mt-0.5">{feitas === tarefas.length ? 'Dia completo. Excelente.' : `${tarefas.length - feitas} ${tarefas.length - feitas === 1 ? 'passo' : 'passos'} para fechar o dia`}</p>
             </div>
-            <div className="rounded-xl bg-white/10 ring-1 ring-white/20 px-4 py-3 text-center backdrop-blur">
-              <p className="titulo text-4xl num leading-none">{numero(Math.max(0, diasEnem))}</p>
-              <p className="text-xs font-bold text-white/75 mt-1">dias para o ENEM</p>
-            </div>
+            <Anel valor={feitas / tarefas.length} tamanho={48} espessura={5} cor="#8FB0FF" fundo="rgb(255 255 255 / .12)"><span className="text-[12px] font-semibold num">{feitas}/{tarefas.length}</span></Anel>
           </div>
-          <div className="rounded-xl bg-surface text-ink p-4 md:p-5 shadow-lg">
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-extrabold">Plano de hoje</p>
-              <Badge tom="brand">{feitas} de {tarefas.length}</Badge>
-            </div>
-            <ul className="grid gap-2 grid-cols-1 sm:grid-cols-2">
-              {tarefas.map((t) => (
-                <li key={t.texto} className="min-w-0">
-                  <a href={t.href} className={cx('group flex items-center gap-3 rounded-lg px-3 py-3 transition-colors', t.feito ? 'bg-ok-soft' : 'bg-sunken hover:bg-brand-soft')}>
-                    <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-full', t.feito ? 'bg-ok text-white' : 'bg-surface text-brand ring-1 ring-line')}>
-                      {t.feito ? <Check size={15} strokeWidth={3} /> : t.icone}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className={cx('block text-sm font-bold truncate', t.feito && 'text-ok')}>{t.texto}</span>
-                      <span className="block text-xs text-muted truncate">{t.detalhe}</span>
-                    </span>
-                    {!t.feito && <ArrowRight size={16} className="text-faint group-hover:text-brand transition" />}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="flex flex-col gap-1.5">
+            {tarefas.map((t) => (
+              <li key={t.texto} className="min-w-0">
+                <a href={t.href} className={cx('group flex items-center gap-3 rounded-lg px-3 py-2.5 ring-1 ring-inset transition-all',
+                  t.feito ? 'bg-white/[.04] ring-white/[.06]' : 'bg-white/[.07] ring-white/10 hover:bg-white/[.11] hover:ring-white/20')}>
+                  <span className={cx('grid h-7 w-7 shrink-0 place-items-center rounded-full', t.feito ? 'bg-[#34D399] text-[#052E1F]' : 'bg-white/10 text-white [&_svg]:h-[15px] [&_svg]:w-[15px]')}>
+                    {t.feito ? <Check size={14} strokeWidth={3} /> : t.icone}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className={cx('block text-[13.5px] font-medium truncate', t.feito && 'text-white/50 line-through decoration-white/30')}>{t.texto}</span>
+                    <span className="block text-[12px] text-white/50 truncate">{t.detalhe}</span>
+                  </span>
+                  {!t.feito && <ArrowRight size={15} className="text-white/40 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />}
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
 
-        <Card className="flex flex-col gap-5">
-          <div className="flex items-center gap-4">
-            <Anel valor={p.nivel.progresso} tamanho={76} espessura={8}>
-              <span className="titulo text-2xl num">{p.nivel.nivel}</span>
-            </Anel>
-            <div className="min-w-0">
-              <p className="text-xs font-extrabold uppercase tracking-[0.1em] text-brand">Nível {p.nivel.nivel}</p>
-              <p className="titulo text-xl">{p.nivel.titulo}</p>
-              <p className="text-[13px] text-muted num">{numero(p.nivel.xpNoNivel)} / {numero(p.nivel.xpParaProximo)} XP · total {numero(p.xp)}</p>
-            </div>
-          </div>
-          <div className="rounded-lg bg-fire-soft p-4">
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2 font-extrabold text-fire"><Flame size={18} strokeWidth={2.6} />{p.seq.atual} {p.seq.atual === 1 ? 'dia seguido' : 'dias seguidos'}</span>
-              <span className="text-xs font-bold text-fire/80">recorde {p.seq.recorde}</span>
-            </div>
-            <div className="mt-3 grid grid-cols-7 gap-1.5">
-              {semanaAtual.map((d, i) => {
-                const ok = diasEstudo.has(d), futuro = d > hoje
-                return (
-                  <div key={d} className="flex flex-col items-center gap-1">
-                    <span className={cx('grid h-8 w-full max-w-[34px] place-items-center rounded-md', ok ? 'bg-fire text-white' : futuro ? 'bg-surface/60' : 'bg-surface', d === hoje && !ok && 'ring-2 ring-fire/40')}>
-                      {ok && <Flame size={14} strokeWidth={2.6} />}
-                    </span>
-                    <span className="text-[11px] font-bold text-fire/70">{letras[i]}</span>
+        <Card>
+          <CardTitulo titulo="Missões do dia" sub="Ajuste as metas em Perfil" icone={<Target />} acao={<Badge tom={missoesOk === p.missoes.length ? 'ok' : 'neutro'}>{missoesOk}/{p.missoes.length}</Badge>} />
+          <ul className="flex flex-col gap-4">
+            {p.missoes.map((m) => {
+              const ok = m.feito >= m.meta
+              const fmt = (v: number) => (m.unidade === 'min' ? minutos(v) : numero(v))
+              return (
+                <li key={m.chave} className="flex flex-col gap-1.5">
+                  <div className="flex items-baseline justify-between text-[13px]">
+                    <span className="font-medium flex items-center gap-1.5">{ok && <Check size={13} className="text-ok" strokeWidth={3} />}{m.nome}</span>
+                    <span className="num text-muted"><span className="text-ink font-medium">{fmt(m.feito)}</span> / {fmt(m.meta)}</span>
                   </div>
-                )
-              })}
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg bg-sunken px-4 py-3">
-            <Trophy size={18} className="text-brand shrink-0" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold">{ganhas.length} de {p.conquistas.length} conquistas</p>
-              <p className="text-xs text-muted truncate">{proxima ? `Próxima: ${proxima.nome} · ${proxima.descricao.toLowerCase()}` : 'Você liberou todas 🏆'}</p>
-            </div>
+                  <Progress valor={m.feito / m.meta} cor={ok ? 'bg-ok' : 'bg-brand'} />
+                </li>
+              )
+            })}
+          </ul>
+          <div className="mt-5 flex items-center gap-2.5 rounded-lg bg-sunken px-3 py-2.5 text-[12.5px]">
+            <Trophy size={15} className="text-brand shrink-0" />
+            <span className="min-w-0 truncate"><span className="font-medium">{ganhas.length}/{p.conquistas.length} conquistas</span><span className="text-muted">{proxima ? ` · próxima: ${proxima.nome}` : ' · todas liberadas'}</span></span>
           </div>
         </Card>
       </div>
 
-      <Card>
-        <CardTitulo titulo="Missões do dia" sub="Metas diárias ajustáveis em Perfil" icone={<Target size={18} />}
-          acao={<Badge tom={p.missoes.every((m) => m.feito >= m.meta) ? 'ok' : 'neutro'}><Zap size={12} />{p.missoes.filter((m) => m.feito >= m.meta).length}/{p.missoes.length}</Badge>} />
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-          {p.missoes.map((m) => {
-            const ok = m.feito >= m.meta
-            const fmt = (v: number) => (m.unidade === 'min' ? minutos(v) : numero(v))
-            return (
-              <div key={m.chave} className={cx('rounded-lg border p-4 flex flex-col gap-2.5 transition-colors', ok ? 'border-ok/30 bg-ok-soft' : 'border-line')}>
-                <span className="flex items-center justify-between text-[13px] font-bold text-muted">{m.nome}{ok ? <Check size={16} className="text-ok" strokeWidth={3} /> : <Circle size={14} className="text-faint" />}</span>
-                <span className="titulo text-[26px] num leading-none">{fmt(m.feito)}<span className="text-[15px] font-semibold text-faint"> / {fmt(m.meta)}</span></span>
-                <Progress valor={m.feito / m.meta} cor={ok ? 'bg-ok' : 'bg-brand'} />
-              </div>
-            )
-          })}
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.35fr_1fr] items-start">
+      {/* Atividade + revisões */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.55fr_1fr] items-start">
         <Card>
-          <CardTitulo titulo="Sua semana" sub="Tempo de foco, questões e constância" icone={<BarChart3 size={18} />} />
-          <div className="grid grid-cols-3 gap-3 mb-5">
-            <div className="rounded-lg bg-sunken p-3.5">
-              <p className="text-xs font-bold text-muted">Foco</p>
-              <p className="titulo text-2xl num">{minutos(minSemana)}</p>
-              <p className={cx('text-xs font-bold', minSemana >= minAnterior ? 'text-ok' : 'text-muted')}>{minAnterior ? `${minSemana >= minAnterior ? '▲' : '▼'} vs ${minutos(minAnterior)}` : 'semana anterior: 0'}</p>
+          <CardTitulo titulo="Atividade" sub={`${minutos(p.minutosTotal)} de foco no total`} icone={<Activity />}
+            acao={<Segmented rotulo="Período" valor={visao} onChange={setVisao} opcoes={[{ valor: '14', rotulo: '14 dias' }, { valor: '12s', rotulo: '12 semanas' }]} />} />
+          {visao === '14' ? (
+            <div className="flex h-40 items-end gap-1.5 sm:gap-2" role="img" aria-label="Minutos de foco por dia nos últimos 14 dias">
+              {ultimos14.map((d) => {
+                const v = porDia.get(d) ?? 0
+                return (
+                  <div key={d} className="group flex h-full flex-1 flex-col items-center justify-end gap-1.5" title={`${dataBR(d)}: ${minutos(v)}`}>
+                    <span className="text-[10px] text-faint num opacity-0 group-hover:opacity-100 transition-opacity">{v ? minutos(v) : ''}</span>
+                    <span className={cx('w-full rounded-t-[5px] transition-all duration-500', v ? 'bg-gradient-to-t from-brand/70 to-brand-2' : 'bg-sunken', d === hoje && 'ring-1 ring-brand/60')}
+                      style={{ height: `${v ? Math.max(8, (v / max14) * 100) : 4}%` }} />
+                    <span className={cx('text-[10px] num', d === hoje ? 'text-brand font-semibold' : 'text-faint')}>{Number(d.slice(8))}</span>
+                  </div>
+                )
+              })}
             </div>
-            <div className="rounded-lg bg-sunken p-3.5">
-              <p className="text-xs font-bold text-muted">Questões</p>
-              <p className="titulo text-2xl num">{numero(qSemana)}</p>
-              <p className="text-xs font-bold text-muted">{qSemana ? `${Math.round((aSemana / qSemana) * 100)}% de acerto` : 'nenhuma ainda'}</p>
+          ) : (
+            <div className="flex justify-between gap-1 max-w-[480px]" role="img" aria-label="Mapa de dias estudados nas últimas 12 semanas">
+              {semanas.map((sem, w) => (
+                <div key={w} className="flex flex-col gap-1">
+                  {sem.map((d) => <span key={d} title={`${dataBR(d)}: ${minutos(porDia.get(d) ?? 0)}`} className={cx('block h-[15px] w-[15px] sm:h-[19px] sm:w-[19px] rounded-[4px]', d > hoje ? 'bg-transparent' : tom(porDia.get(d) ?? (diasEstudo.has(d) ? 1 : 0)))} />)}
+                </div>
+              ))}
             </div>
-            <div className="rounded-lg bg-sunken p-3.5">
-              <p className="text-xs font-bold text-muted">Acerto geral</p>
-              <p className="titulo text-2xl num">{p.totalQuestoes ? `${Math.round(acertoPct * 100)}%` : '—'}</p>
-              <p className="text-xs font-bold text-muted">{numero(p.totalQuestoes)} questões</p>
-            </div>
-          </div>
-          <div className="flex justify-between gap-1 max-w-[440px]" role="img" aria-label="Mapa de dias estudados nas últimas 12 semanas">
-            {semanas.map((sem, w) => (
-              <div key={w} className="flex flex-col gap-1">
-                {sem.map((d) => <span key={d} title={`${dataBR(d)}: ${minutos(porDia.get(d) ?? 0)}`} className={cx('block h-[15px] w-[15px] sm:h-[18px] sm:w-[18px] rounded-[4px]', d > hoje ? 'bg-transparent' : tom(porDia.get(d) ?? (diasEstudo.has(d) ? 1 : 0)))} />)}
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
-            <span>Últimas 12 semanas · {minutos(p.minutosTotal)} no total</span>
-            <span className="flex items-center gap-1">menos <span className="h-2.5 w-2.5 rounded-sm bg-sunken" /><span className="h-2.5 w-2.5 rounded-sm bg-brand/35" /><span className="h-2.5 w-2.5 rounded-sm bg-brand/70" /><span className="h-2.5 w-2.5 rounded-sm bg-brand" /> mais</span>
-          </div>
+          )}
         </Card>
 
         <Card>
-          <CardTitulo titulo="Revisões de hoje" sub={vencidas.length ? `${vencidas.length} para revisar` : 'Nada vencido'} icone={<RotateCcw size={18} />}
-            acao={<a href={link('estudos', 'revisoes')} className="text-sm font-bold text-brand">Abrir</a>} />
+          <CardTitulo titulo="Revisões de hoje" sub={vencidas.length ? `${vencidas.length} para revisar` : 'Nada vencido'} icone={<RotateCcw />}
+            acao={<a href={link('estudos', 'revisoes')} className="font-medium text-brand hover:underline">Abrir</a>} />
           {vencidas.length ? (
-            <ul className="divide-y divide-line -my-2">
-              {vencidas.slice(0, 6).map((r) => (
+            <ul className="-my-1 divide-y divide-line">
+              {vencidas.slice(0, 5).map((r) => (
                 <li key={r.id} className="flex items-center gap-3 py-2.5">
-                  <span className={cx('h-2 w-2 rounded-full shrink-0', r.proxima < hoje ? 'bg-bad' : 'bg-brand')} />
+                  <span className={cx('h-1.5 w-1.5 rounded-full shrink-0', r.proxima < hoje ? 'bg-bad' : 'bg-brand')} />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-semibold truncate">{r.frente}</span>
-                    <span className="block text-xs text-muted">{(r.materia_id && nomeMateria.get(r.materia_id)) || (r.tipo === 'erro' ? 'Erro' : 'Cartão')}</span>
+                    <span className="block text-[13.5px] font-medium truncate">{r.frente}</span>
+                    <span className="block text-[12px] text-faint">{(r.materia_id && nomeMateria.get(r.materia_id)) || (r.tipo === 'erro' ? 'Erro' : 'Cartão')}</span>
                   </span>
-                  <span className={cx('text-xs font-bold', r.proxima < hoje ? 'text-bad' : 'text-muted')}>{r.proxima < hoje ? 'atrasada' : 'hoje'}</span>
+                  <Badge tom={r.proxima < hoje ? 'bad' : 'neutro'}>{r.proxima < hoje ? 'atrasada' : 'hoje'}</Badge>
                 </li>
               ))}
             </ul>
           ) : (
-            <div className="flex flex-col items-start gap-3 rounded-lg bg-sunken p-4">
-              <p className="text-sm text-muted">Cadastre cada questão que errar: o Rumo avisa o dia certo de revisar (1, 3, 7, 15, 30 e 60 dias).</p>
-              <a href={link('estudos', 'revisoes')} className="text-sm font-bold text-brand">Cadastrar um erro →</a>
+            <div className="rounded-lg border border-dashed border-line p-4 text-[13px] text-muted">
+              Cadastre cada questão que errar: o Rumo avisa o dia certo de revisar.
+              <a href={link('estudos', 'revisoes')} className="mt-2 flex items-center gap-1 font-medium text-brand">Cadastrar um erro <ArrowUpRight size={14} /></a>
             </div>
           )}
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Card className="flex flex-col gap-4">
-          <CardTitulo titulo="Seu rumo financeiro" sub={`Cenário ${moderado?.nome.toLowerCase() ?? '—'} · valores de hoje`} acao={<a href={link('financas', 'liberdade')} className="text-sm font-bold text-brand">Ver</a>} />
-          <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
-            <div><p className="text-[13px] font-bold text-muted">Liberdade financeira</p><p className="titulo text-3xl">{idadeMeta ? `aos ${idadeMeta} anos` : 'não chega até os 70'}</p></div>
-            <div><p className="text-[13px] font-bold text-muted">Patrimônio</p><p className="titulo text-3xl num">{brlCurto(patrimonio)}</p></div>
+      {/* Dinheiro + metas */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 items-start">
+        <a href={link('financas', 'liberdade')} className="card p-5 group block">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[12.5px] font-medium text-muted">Liberdade financeira · cenário {moderado?.nome.toLowerCase() ?? '—'}</p>
+              <p className="titulo text-[30px] leading-tight mt-1">{idadeMeta ? `aos ${idadeMeta} anos` : 'ainda não chega'}</p>
+            </div>
+            <ArrowUpRight size={18} className="text-faint transition-all group-hover:text-brand group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </div>
-          <Progress valor={patrimonio / meta} altura="h-2.5" />
-          <p className="text-[13px] text-muted">Meta de {brlCurto(meta)}: {brlCurto(perfil.renda_desejada)}/mês sacando {Math.round(perfil.taxa_saque * 100)}% ao ano.</p>
-        </Card>
+          <div className="mt-4 grid grid-cols-2 gap-3 text-[13px]">
+            <div><p className="text-faint">Patrimônio</p><p className="font-semibold num text-[15px]">{brlCurto(patrimonio)}</p></div>
+            <div><p className="text-faint">Meta</p><p className="font-semibold num text-[15px]">{brlCurto(meta)}</p></div>
+          </div>
+          <Progress valor={patrimonio / meta} className="mt-3" />
+        </a>
         <Card>
-          <CardTitulo titulo="Próximas metas" acao={<a href={link('carreira', 'metas')} className="text-sm font-bold text-brand">Todas</a>} />
-          <ul className="flex flex-col gap-2">
+          <CardTitulo titulo="Próximas metas" icone={<BookMarked />} acao={<a href={link('carreira', 'metas')} className="font-medium text-brand hover:underline">Todas</a>} />
+          <ul className="-my-1 divide-y divide-line">
             {proximasMetas.map((m) => {
               const s = situacaoMeta(m.prazo, m.status, hoje)
               return (
-                <li key={m.id} className="flex items-center gap-3 rounded-lg bg-sunken px-3.5 py-3">
-                  <span className={cx('h-2.5 w-2.5 rounded-full shrink-0', s === 'atrasada' ? 'bg-bad' : s === 'em-breve' ? 'bg-fire' : 'bg-ok')} />
-                  <span className="flex-1 text-sm font-semibold">{m.titulo}</span>
-                  <span className="text-xs font-bold text-muted whitespace-nowrap">{dataBR(m.prazo)}</span>
+                <li key={m.id} className="flex items-center gap-3 py-2.5">
+                  <span className={cx('h-1.5 w-1.5 rounded-full shrink-0', s === 'atrasada' ? 'bg-bad' : s === 'em-breve' ? 'bg-fire' : 'bg-ok')} />
+                  <span className="flex-1 text-[13.5px] font-medium min-w-0 truncate">{m.titulo}</span>
+                  <span className="text-[12px] text-faint num whitespace-nowrap">{dataBR(m.prazo)}</span>
                 </li>
               )
             })}
-            {!proximasMetas.length && <p className="text-sm text-muted">Nenhuma meta aberta.</p>}
+            {!proximasMetas.length && <p className="text-sm text-muted py-2">Nenhuma meta aberta.</p>}
           </ul>
         </Card>
       </div>

@@ -30,7 +30,7 @@ export function MetasPage() {
       <Card className="flex flex-wrap items-center gap-6">
         <Anel valor={metas.dados.length ? feitas / metas.dados.length : 0} tamanho={84} espessura={9}><span className="titulo num">{metas.dados.length ? Math.round((feitas / metas.dados.length) * 100) : 0}%</span></Anel>
         <div className="flex gap-8">
-          {[['Metas', metas.dados.length], ['Concluídas', feitas], ['Atrasadas', metas.dados.filter((m) => situacaoMeta(m.prazo, m.status) === 'atrasada').length]].map(([r, v]) => <div key={r as string}><p className="text-[13px] font-bold text-muted">{r}</p><p className="titulo text-3xl num">{v}</p></div>)}
+          {[['Metas', metas.dados.length], ['Concluídas', feitas], ['Atrasadas', metas.dados.filter((m) => situacaoMeta(m.prazo, m.status) === 'atrasada').length]].map(([r, v]) => <div key={r as string}><p className="text-[13px] font-medium text-muted">{r}</p><p className="titulo text-3xl num">{v}</p></div>)}
         </div>
         <div className="ml-auto"><Segmented rotulo="Área" valor={filtro} onChange={setFiltro} opcoes={['Todas', ...AREAS].map((a) => ({ valor: a, rotulo: a }))} /></div>
       </Card>
@@ -42,7 +42,7 @@ export function MetasPage() {
               <input type="checkbox" aria-label={`Concluir ${m.titulo}`} checked={m.status === 'concluída'} className="mt-1 h-5 w-5 shrink-0"
                 onChange={() => metas.atualizar(m.id, { status: m.status === 'concluída' ? 'em andamento' : 'concluída' }, m.status === 'concluída' ? undefined : 'Meta concluída! 🎉')} />
               <button type="button" className="flex-1 text-left min-w-0" onClick={() => setEdit(m)}>
-                <p className={cx('font-bold', m.status === 'concluída' && 'line-through text-muted')}>{m.titulo}</p>
+                <p className={cx('font-medium', m.status === 'concluída' && 'line-through text-muted')}>{m.titulo}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5"><Badge>{m.area}</Badge><Badge tom={ROT[s][1]}>{ROT[s][0]}</Badge>{m.prazo && <Badge>até {dataBR(m.prazo)}</Badge>}{m.status === 'em andamento' && <Badge tom="brand">em andamento</Badge>}</div>
                 {m.notas && <p className="mt-2 text-sm text-muted line-clamp-2">{m.notas}</p>}
               </button>

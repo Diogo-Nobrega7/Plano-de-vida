@@ -10,7 +10,7 @@ import { COMPETENCIAS, MOTIVOS_ZERO, NIVEIS, NOTAS_1000, analisar, notaTotal, pr
 import type { Redacao } from '@/data/tipos'
 
 const CHAVES: ChaveC[] = ['c1', 'c2', 'c3', 'c4', 'c5']
-const CORES = ['#1D4ED8', '#0EA5E9', '#16A34A', '#EA580C', '#7C3AED']
+const CORES = ['#5482FF', '#38BDF8', '#34D399', '#FB923C', '#A78BFA']
 type Notas = Record<ChaveC, number>
 
 function Correcao({ notas, onChange }: { notas: Notas; onChange: (n: Notas) => void }) {
@@ -18,11 +18,11 @@ function Correcao({ notas, onChange }: { notas: Notas; onChange: (n: Notas) => v
     <div className="flex flex-col gap-4">
       {CHAVES.map((k) => (
         <div key={k} className="flex flex-col gap-2 pb-4 border-b border-line last:border-0 last:pb-0">
-          <div className="flex items-baseline justify-between"><span className="text-sm font-extrabold">{COMPETENCIAS[k].nome}</span><span className="titulo text-brand num">{notas[k]}</span></div>
+          <div className="flex items-baseline justify-between"><span className="text-sm font-semibold">{COMPETENCIAS[k].nome}</span><span className="titulo text-brand num">{notas[k]}</span></div>
           <div role="group" aria-label={COMPETENCIAS[k].nome} className="grid grid-cols-6 gap-1">
             {NIVEIS.map((v) => (
               <button key={v} type="button" aria-pressed={notas[k] === v} onClick={() => onChange({ ...notas, [k]: v })}
-                className={cx('h-9 rounded-md text-[13px] font-bold border transition-all', notas[k] === v ? 'bg-brand text-brand-ink border-brand shadow-sm' : 'border-line hover:border-brand/50 hover:bg-brand-soft')}>{v}</button>
+                className={cx('h-9 rounded-md text-[13px] font-medium border transition-all', notas[k] === v ? 'bg-brand text-brand-ink border-brand shadow-sm' : 'border-line hover:border-brand/50 hover:bg-brand-soft')}>{v}</button>
             ))}
           </div>
           <p className="text-xs text-muted leading-relaxed">{COMPETENCIAS[k].niveis[notas[k]]}</p>
@@ -61,8 +61,8 @@ function Escrever() {
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] items-start">
       <div className="flex flex-col gap-4">
         <Card className="!p-4">
-          <label htmlFor="tema" className="text-xs font-extrabold uppercase tracking-[0.1em] text-brand">Tema</label>
-          <Select id="tema" value={tema} onChange={(e) => { setTema(e.target.value); sessionStorage.setItem('rumo:tema', e.target.value) }} className="mt-1.5 !h-auto py-2.5 font-bold">
+          <label htmlFor="tema" className="text-xs font-semibold uppercase tracking-[0.1em] text-brand">Tema</label>
+          <Select id="tema" value={tema} onChange={(e) => { setTema(e.target.value); sessionStorage.setItem('rumo:tema', e.target.value) }} className="mt-1.5 !h-auto py-2.5 font-medium">
             {temas.dados.map((t) => <option key={t.id} value={t.tema}>{t.ano ? `ENEM ${t.ano} · ` : 'Treino · '}{t.tema}</option>)}
           </Select>
         </Card>
@@ -72,7 +72,7 @@ function Escrever() {
             className="!rounded-none !border-0 !ring-0 font-serif !text-[17px] !leading-[1.85] px-6 py-5 bg-[linear-gradient(transparent_calc(1.85em-1px),rgb(var(--line)/.6)_1px)] bg-[length:100%_1.85em] [background-position-y:1.25rem]" />
           <div className="grid grid-cols-4 border-t border-line divide-x divide-line">
             {[['Palavras', a.palavras], ['Linhas (est.)', a.linhas], ['Parágrafos', a.paragrafos], ['Conectivos', a.conectivos.length]].map(([r, v]) => (
-              <div key={r} className="px-4 py-3"><p className="text-[11px] font-bold text-muted">{r}</p><p className="titulo text-xl num">{v}</p></div>
+              <div key={r} className="px-4 py-3"><p className="text-[11px] font-medium text-muted">{r}</p><p className="titulo text-xl num">{v}</p></div>
             ))}
           </div>
         </Card>
@@ -80,7 +80,7 @@ function Escrever() {
           <Card>
             <CardTitulo titulo="Pré-análise automática" sub="Sinais no texto, não a nota. Revise antes de corrigir." icone={<Sparkles size={18} />} />
             <div className="flex flex-wrap gap-2 mb-4">
-              <span className="text-[13px] font-bold text-muted mr-1 self-center">Proposta:</span>
+              <span className="text-[13px] font-medium text-muted mr-1 self-center">Proposta:</span>
               {Object.entries(a.elementos).map(([k, v]) => <Badge key={k} tom={v ? 'ok' : 'neutro'}>{v ? '✓' : '·'} {k}</Badge>)}
             </div>
             <ul className="flex flex-col gap-2">
@@ -92,10 +92,10 @@ function Escrever() {
       </div>
 
       <div className="flex flex-col gap-4 lg:sticky lg:top-32">
-        <section className="rounded-xl bg-night text-white p-5 shadow-md">
+        <section className="hero rounded-xl text-white p-5">
           <div className="flex items-center justify-between">
-            <p className="text-[13px] font-bold text-white/60">Nota da correção</p>
-            <label className="flex items-center gap-2 text-xs font-bold text-white/70 cursor-pointer">
+            <p className="text-[13px] font-medium text-white/60">Nota da correção</p>
+            <label className="flex items-center gap-2 text-xs font-medium text-white/70 cursor-pointer">
               <input type="checkbox" checked={corrigir} onChange={(e) => setCorrigir(e.target.checked)} className="h-4 w-4" />Corrigir agora
             </label>
           </div>
@@ -136,7 +136,7 @@ function Minhas() {
     <div className="flex flex-col gap-5">
       <section className="card grid grid-cols-3 divide-x divide-line">
         {[['Redações', redacoes.dados.length], ['Média', totais.length ? numero(totais.reduce((a, b) => a + b, 0) / totais.length) : '—'], ['Melhor', totais.length ? Math.max(...totais) : '—']].map(([r, v]) => (
-          <div key={r as string} className="p-5"><p className="text-[13px] font-bold text-muted">{r}</p><p className="titulo text-3xl num">{v}</p></div>
+          <div key={r as string} className="p-5"><p className="text-[13px] font-medium text-muted">{r}</p><p className="titulo text-3xl num">{v}</p></div>
         ))}
       </section>
       {corrigidas.length > 0 && (
@@ -170,7 +170,7 @@ function ItemRedacao({ r, aberta, alternar, atualizar, remover }: { r: Redacao; 
     <Card className="!p-0 overflow-hidden">
       <button type="button" onClick={alternar} aria-expanded={aberta} className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-sunken/60">
         <span className={cx('grid h-12 w-14 shrink-0 place-items-center rounded-lg titulo num', total == null ? 'bg-sunken text-muted' : total >= 900 ? 'bg-ok-soft text-ok' : total >= 700 ? 'bg-brand-soft text-brand' : 'bg-fire-soft text-fire')}>{total ?? '—'}</span>
-        <span className="min-w-0 flex-1"><span className="block font-bold truncate">{r.tema}</span><span className="block text-xs text-muted">{dataBR(r.data)} · {total == null ? 'sem correção' : `corrigida por ${r.corretor || '—'}`}</span></span>
+        <span className="min-w-0 flex-1"><span className="block font-medium truncate">{r.tema}</span><span className="block text-xs text-muted">{dataBR(r.data)} · {total == null ? 'sem correção' : `corrigida por ${r.corretor || '—'}`}</span></span>
         <ChevronDown size={18} className={cx('text-muted transition-transform', aberta && 'rotate-180')} />
       </button>
       {aberta && (
@@ -228,13 +228,13 @@ function Guia() {
   return (
     <div className="flex flex-col gap-5">
       <section className="hero rounded-2xl p-6 md:p-8 text-white">
-        <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-white/70">Guia</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/70">Guia</p>
         <h2 className="titulo text-3xl mt-1">O que as redações nota 1000 têm em comum</h2>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {NOTAS_1000.map(([t, d], i) => (
             <div key={t} className="rounded-xl bg-white/10 ring-1 ring-white/15 p-4">
               <span className="titulo text-white/50 num">{String(i + 1).padStart(2, '0')}</span>
-              <p className="font-extrabold mt-1">{t}</p>
+              <p className="font-semibold mt-1">{t}</p>
               <p className="text-sm text-white/80 mt-1">{d}</p>
             </div>
           ))}
@@ -246,10 +246,10 @@ function Guia() {
           <div className="flex flex-col gap-5">
             {CHAVES.map((k) => (
               <div key={k}>
-                <p className="font-extrabold">{COMPETENCIAS[k].nome}</p>
+                <p className="font-semibold">{COMPETENCIAS[k].nome}</p>
                 <p className="text-sm text-muted">{COMPETENCIAS[k].pergunta}</p>
                 <ul className="mt-2 grid gap-1">
-                  {NIVEIS.slice().reverse().map((n) => <li key={n} className="flex gap-3 text-sm"><span className="w-9 shrink-0 font-bold text-brand num">{n}</span><span className="text-muted">{COMPETENCIAS[k].niveis[n]}</span></li>)}
+                  {NIVEIS.slice().reverse().map((n) => <li key={n} className="flex gap-3 text-sm"><span className="w-9 shrink-0 font-medium text-brand num">{n}</span><span className="text-muted">{COMPETENCIAS[k].niveis[n]}</span></li>)}
                 </ul>
               </div>
             ))}
